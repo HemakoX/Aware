@@ -3,7 +3,7 @@
 > _Track your time, protect your focus._
 
 <div align="center">
-  <img src="app/src/main/res/drawable/play_store_512.png" width="100" height="100" style="border-radius: 50px;" />
+  <img src="app/src/main/res/drawable/play_store_512.png" width="100" height="100" style="border-radius: 50;" />
 </div>
 
 ---
