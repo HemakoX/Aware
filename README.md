@@ -2,7 +2,9 @@
 
 > _Track your time, protect your focus._
 
-<img src="app/src/main/res/drawable/play_store_512.png" width="110" height="110" /> <!-- Replace with actual promo image or GIF -->
+<div align="center">
+  <img src="app/src/main/res/drawable/play_store_512.png" width="100" height="100" style="border-radius: 8px;" />
+</div>
 
 ---
 
