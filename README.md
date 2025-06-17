@@ -2,7 +2,7 @@
 
 > _Track your time, protect your focus._
 
-![Aware Hero Image](https://your-image-link.com) <!-- Replace with actual promo image or GIF -->
+![Aware Hero Image](app/src/main/res/drawable/play_store_512.png) <!-- Replace with actual promo image or GIF -->
 
 ---
 
