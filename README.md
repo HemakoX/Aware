@@ -52,9 +52,10 @@ Switch instantly between **English** and **Arabic**, fully localized UI & RTL su
 
 ## 📲 Installation & Setup
 
-1. Download from [Google Play](#) (AVAILABLE SOON)
+1. Download from Google Play (available soon)
 2. Grant the required **accessibility** & **overlay** permissions
-3. Customize your theme & get aware instantly
+3. if **accessibility** permission was grayed off try unloack `restricted settings` for the app
+4. Customize your theme & get aware instantly
 
 ---
 
@@ -63,6 +64,8 @@ Switch instantly between **English** and **Arabic**, fully localized UI & RTL su
 - No accounts, no ads, no trackers
 - Elegant UI with fluid transitions
 - Helps reduce screen addiction subtly
+- Simple in use
+- No battery draining in live usage tracking
 
 ---
 
@@ -87,6 +90,8 @@ Switch instantly between **English** and **Arabic**, fully localized UI & RTL su
 
 Found a bug or have a feature idea?  
 Send feedback via the app or contact me at:  
-📧 **aware.feedback@yourmail.com**
+📧 **hema.ko.services@gmail.com**
+**Or**
+You can send me your feedback from **Aware** in `Settings` screen `feedback` section
 
 ---
