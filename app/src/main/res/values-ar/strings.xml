@@ -1,0 +1,126 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="apps_list">قائمة التطبيقات</string>
+    <string name="live_bubble">فقاعة حية</string>
+    <string name="bubble_preview">معاينة الفقاعة</string>
+    <string name="customize_panel">تخصيص لوحة</string>
+    <string name="bg_color">لون الخلفية</string>
+    <string name="text_color">لون النص</string>
+    <string name="corner_radius">تدوير الزوايا</string>
+    <string name="display_options">خيارات العرض</string>
+    <string name="show_usage">عرض استخدام</string>
+    <string name="show_icon">عرض الأيقونة</string>
+    <string name="show_name">عرض اسم</string>
+    <string name="save">حفظ</string>
+    <string name="sort_by">	ترتيب حسب</string>
+    <string name="bubble_settings">إعدادات الفقاعة</string>
+    <string name="used_today">المستخدمة اليوم</string>
+    <string name="all_apps">جميع التطبيقات</string>
+    <string name="search_apps">بحث في التطبيقات</string>
+    <string name="total_usage">الاستخدام الكلي</string>
+    <string name="accept_usage_monitoring_permission_to_start">يرجى قبول إذن تتبع الاستخدام للبدء </string>
+    <string name="grant">سماح</string>
+    <string name="duration">مدة</string>
+    <string name="start_time">وقت البدء</string>
+    <string name="end_time">وقت الانتهاء</string>
+    <string name="sessions">جلسات</string>
+    <string name="monitor_usage">مراقبة الاستخدام</string>
+    <string name="set_daily_limit">اضافة حد يومي</string>
+    <string name="daily_limit">الحد اليومي</string>
+    <string name="remove_app_limit">إزالة حد التطبيق</string>
+    <string name="session">حصة</string>
+    <string name="to">إلى</string>
+    <string name="usage_logs">سجلات الاستخدام</string>
+    <string name="minutes">دقائق</string>
+    <string name="seconds">ثوان</string>
+    <string name="hours">ساعات</string>
+    <string name="set">تعيين</string>
+    <string name="cancel">إلغاء</string>
+    <string name="settings">إعدادات</string>
+    <string name="name">الاسم</string>
+    <string name="usage">الاستخدام</string>
+    <string name="unlock_times">مرات الفتح</string>
+    <string name="theme">الثيمات</string>
+    <string name="limited">محدود</string>
+    <string name="language">لغة</string>
+    <string name="no_usage_today">لا استخدام اليوم</string>
+    <string name="We_will_start_tracking_your_sessions_when_you_use_this_app">سنبدأ في تتبع جلساتك عند استخدام هذا التطبيق</string>
+    <string name="no_sessions_detected">لم يتم اكتشاف جلسات</string>
+    <string name="average_usage">متوسط ​​الاستخدام</string>
+    <string name="today_usage">استخدام اليوم</string>
+    <string name="show_bubble">عرض فقاعة</string>
+    <string name="hide_bubble">إخفاء الفقاعة</string>
+    <string name="colors">الألوان</string>
+    <string name="pick_a_color">اختر لونًا</string>
+    <string name="brightness">سطوع</string>
+    <string name="translucency">الشفافية</string>
+    <string name="translucency_must_be_over_50">يجب أن تتجاوز الشفافية 30 ٪</string>
+    <string name="limited_apps">تطبيقات محدودة</string>
+    <string name="no_apps_found">لم يتم العثور على تطبيقات</string>
+    <string name="permissions_onboarding">يرجى منح صلاحيات الوصول ونافذة التراكب حتى نتمكن من متابعة التطبيقات التي تستخدمها ومساعدتك في التحكم بوقتك</string>
+    <string name="set_app_imits_and_stay_focused">اضبط حدود التطبيق واصل التركيز</string>
+    <string name="live_screen_time_tracking">تتبع وقت الشاشة الحية</string>
+    <string name="welcome_to">مرحبا بكم في</string>
+    <string name="permissions_needed">الصلاحيات اللازمة</string>
+    <string name="set_daily_limits_for_distracting_apps_we_will_remind_you_or_block_access_when_needed">حدد حدودًا يومية للتطبيقات المشتتة. سنذكّرك أو نمنع الوصول عند الحاجة</string>
+    <string name="quietly_tracks_which_app_you_are_using_and_how_long_you_are_spending_on_it_live.">يتتبع بهدوء التطبيق الذي تستخدمه ومدة استخدامك له في الوقت الفعلي.</string>
+    <string name="take_control_of_your_screen_time_Track_reflect_and_build_better_habits">تحكّم في وقت استخدامك للشاشة. تتبّع، تأمّل، واصنع عادات أفضل.</string>
+    <string name="back">رجوع</string>
+    <string name="get_started">ابدأ</string>
+    <string name="next">التالي</string>
+    <string name="enable_live_bubble">تمكين الفقاعة الحية</string>
+    <string name="disable_live_bubble">تعطيل الفقاعة الحية</string>
+    <string name="enable_bubble">تفعيل الفقاعة</string>
+    <string name="disable_bubble">تعطيل الفقاعة</string>
+    <string name="accept_overlay_permission_to_start_aware_panel">قبول إذن تراكب لبدء لوحة Aware</string>
+    <string name="activate">تفعيل</string>
+    <string name="disable">إيقاف</string>
+    <string name="bubble">فقاعة</string>
+    <string name="permission_is_granted">تم منح إذن</string>
+    <string name="track_usage">تتبع الاستخدام</string>
+    <string name="remove">ازالة</string>
+    <string name="time_range">نطاق الوقت</string>
+    <string name="session_time">وقت الجلسة</string>
+    <string name="we_will_start_tracking">سنبدأ التتبع</string>
+    <string name="usage_sessions">جلسات الاستخدام</string>
+    <string name="tracking_enabled">تمكين تتبع</string>
+    <string name="scroll_to_top">انتقل إلى الأعلى</string>
+    <string name="try_different_search">جرب بحث مختلف</string>
+    <string name="no_results_found">لم يتم العثور على نتائج</string>
+    <string name="clear">واضح</string>
+    <string name="search">يبحث</string>
+    <string name="bubble_preview_description">وصف معاينة الفقاعة</string>
+    <string name="app_icon">أيقونة التطبيق</string>
+    <string name="grant_permission">منح الاذن</string>
+    <string name="overlay_permission_required">الإذن التراكب المطلوب</string>
+    <string name="appearance">اعدادات المظهر</string>
+    <string name="bubble_control">ظهور الفقاعة</string>
+    <string name="accessibility_description">يحتاج تطبيق Aware إلى هذا لتتبع التطبيق المفتوح، ولإظهار وقت الشاشة دون استنزاف البطارية ولمساعدتك على البقاء على اطلاع</string>
+    <string name="usage_stats_permission">الإحصائيات الإحصائيات الاستخدام</string>
+    <string name="accessiblity_permission_required">إذن إمكانية الوصول المطلوبة</string>
+    <string name="please_grant_overlay_permission_first">الرجاء منح الإذن التراكبي أولاً</string>
+    <string name="send_your_feedback">أرسل ملاحظاتك</string>
+    <string name="send">ارسال</string>
+    <string name="help_us_improve">ساعدنا في تحسين</string>
+    <string name="describe_your_experience">صف تجربتك</string>
+    <string name="thanks_for_your_feedback">شكرا لتعليقك</string>
+    <string name="please_check_your_internet_connection">يرجى التحقق من اتصال الإنترنت الخاص بك</string>
+    <string name="optional">اختياري</string>
+    <string name="start">البداية</string>
+    <string name="end">النهاية</string>
+    <string name="apps">التطبيقات</string>
+    <string name="default_settings">الإعدادات الافتراضية</string>
+    <string name="customize_your_default_settings">تخصيص الإعدادات الافتراضية الخاصة بك</string>
+    <string name="bubble_title">تعرف على فقاعة Aware</string>
+    <string name="bubble_description">
+        تظهر فقاعة أثناء استخدامك للهاتف. تُظهر وقت استخدامك للشاشة مباشرة — لتساعدك على البقاء في وعي وتحكم.
+        يمكنك تحريكها، تعديلها، أو إخفاؤها في أي وقت.
+    </string>
+    <string name="bubble_privacy_title">🔒 خاصة وآمنة</string>
+    <string name="bubble_privacy_description">
+        لا نقوم بتتبع أو إرسال بياناتك. الفقاعة تعمل فقط على جهازك.
+    </string>
+    <string name="activated">المنشط</string>
+    <string name="disabled">عاجز</string>
+    <string name="apply_changes">تطبيق التغييرات</string>
+</resources>
