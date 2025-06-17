@@ -66,11 +66,11 @@ Switch instantly between **English** and **Arabic**, fully localized UI & RTL su
 
 ## 📷 Screenshots
 
-| Live Overlay | Theme Preview | Settings |
+| Splash | Apps list screen | Settings 
 |--------------|---------------|----------|
-| ![Overlay](https://your-screenshot-link.com) | ![Themes](https://your-theme-link.com) | ![Settings](https://your-settings-link.com) |
-
+| ![splash](screenshots/splash_light.png) | ![Apps](screenshots/home.png) | ![Settings](screenshots/settings.png) |
 ---
+
 
 ## 🛠 Tech Stack
 
