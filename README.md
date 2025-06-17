@@ -52,7 +52,7 @@ Switch instantly between **English** and **Arabic**, fully localized UI & RTL su
 
 ## 📲 Installation & Setup
 
-1. Download from [Google Play](#) (or sideload APK)
+1. Download from [Google Play](#) (AVAILABLE SOON)
 2. Grant the required **accessibility** & **overlay** permissions
 3. Customize your theme & get aware instantly
 
