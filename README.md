@@ -88,6 +88,11 @@ Switch instantly between **English** and **Arabic**, fully localized UI & RTL su
 - **Material You Theming**
 - **MVVM Architecture**
 
+### 🚀 My Tech Stack  
+<p align="center">
+  <img src="https://skillicons.dev/icons?i=kotlin,jetpack,github,androidstudio,pycharm,mvvm" />
+</p>
+
 ---
 
 ## 📬 Feedback
