@@ -1,4 +1,4 @@
-# 🧠 Aware — Stay aware, be in control
+# Aware — Stay aware, be in control
 
 > _Track your time, protect your focus._
 
@@ -88,9 +88,17 @@ Switch instantly between **English** and **Arabic**, fully localized UI & RTL su
 - **Material You Theming**
 - **MVVM Architecture**
 
-### 🚀 My Tech Stack  
-<p align="center">
-  <img src="https://skillicons.dev/icons?i=kotlin,jetpack,github,androidstudio,pycharm,mvvm" />
+## 🛠️ Tech Stack
+
+<p align="left">
+  <img src="https://img.shields.io/badge/Kotlin-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white" />
+  <img src="https://img.shields.io/badge/Jetpack%20Compose-4285F4?style=for-the-badge&logo=android&logoColor=white" />
+  <img src="https://img.shields.io/badge/Android%20Studio-3DDC84?style=for-the-badge&logo=android-studio&logoColor=white" />
+  <img src="https://img.shields.io/badge/Accessibility-FFD600?style=for-the-badge&logo=android&logoColor=black" />
+  <img src="https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black" />
+  <img src="https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white" />
+  <img src="https://img.shields.io/badge/SQLite-003B57?style=for-the-badge&logo=sqlite&logoColor=white" />
+  <img src="https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=white" />
 </p>
 
 ---
