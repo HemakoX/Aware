@@ -77,7 +77,7 @@ Switch instantly between **English** and **Arabic**, fully localized UI & RTL su
 
 | Light theme | App details screen |
 |--------------|---------------|
-| ![light theme](screenshots/light.png) | ![Apps](screenshots/app_screen.png) | 
+| ![light theme](screenshots/light_splash.png) | ![Apps](screenshots/light.png) | 
 ---
 
 
