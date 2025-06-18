@@ -78,11 +78,13 @@ Switch instantly between **English** and **Arabic**, fully localized UI & RTL su
 
 ## 📲 Installation & Setup
 
-1. Download from Google Play (available soon)
-2. Grant the required **accessibility** & **overlay** permissions
-3. if **accessibility** permission was grayed off try unloack `restricted settings` for the app
-4. Customize your theme & get aware instantly
+1. Download from [Here](https://github.com/HemakoX/Aware/releases/download/v1.0/Aware.apk) 
+3. Grant the required **accessibility** & **overlay** permissions
+4. if **accessibility** permission was grayed off try unloack `restricted settings` for the app
+5. Customize your theme & get aware instantly
 
+---
+Aware will be available soon on **Google play store**
 ---
 
 ## 🧭 Why Use Aware?
