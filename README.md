@@ -39,6 +39,32 @@ Switch instantly between **English** and **Arabic**, fully localized UI & RTL su
 
 ---
 
+## 🛠️ Tech Stack
+
+<p align="left">
+  <!-- Core Tech -->
+  <img src="https://img.shields.io/badge/Kotlin-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white" />
+  <img src="https://img.shields.io/badge/Jetpack%20Compose-4285F4?style=for-the-badge&logo=android&logoColor=white" />
+  <img src="https://img.shields.io/badge/Material%20Design-757575?style=for-the-badge&logo=material-design&logoColor=white" />
+  
+  <!-- Development & IDE -->
+  <img src="https://img.shields.io/badge/Android%20Studio-3DDC84?style=for-the-badge&logo=android-studio&logoColor=white" />
+  <img src="https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=white" />
+  <img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white" />
+
+  <!-- UI/UX & Animation -->
+  <img src="https://img.shields.io/badge/Lottie-FCBA03?style=for-the-badge&logo=lottie&logoColor=black" />
+  
+  <!-- App Features -->
+  <img src="https://img.shields.io/badge/Accessibility-FFD600?style=for-the-badge&logo=android&logoColor=black" />
+  <img src="https://img.shields.io/badge/Overlay%20Service-9C27B0?style=for-the-badge&logo=android&logoColor=white" />
+  <img src="https://img.shields.io/badge/Usage%20Analytics-2196F3?style=for-the-badge&logo=google-analytics&logoColor=white" />
+  <img src="https://img.shields.io/badge/Custom%20Themes-E91E63?style=for-the-badge&logo=color&logoColor=white" />
+  <img src="https://img.shields.io/badge/Multi-Language-607D8B?style=for-the-badge&logo=translate&logoColor=white" />
+</p>
+
+---
+
 ## 🛡 Permissions
 
 > Aware runs **locally** and uses **only what's needed**:
@@ -78,39 +104,6 @@ Switch instantly between **English** and **Arabic**, fully localized UI & RTL su
 | Light theme | App details screen |
 |--------------|---------------|
 | ![light theme](screenshots/splash_light.png) | ![Apps](screenshots/light.png) | 
----
-
-
-## 🛠 Tech Stack
-
-- **Kotlin + Jetpack Compose**
-- **Accessibility API**
-- **Material You Theming**
-- **MVVM Architecture**
-
-## 🛠️ Tech Stack
-
-<p align="left">
-  <!-- Core Tech -->
-  <img src="https://img.shields.io/badge/Kotlin-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white" />
-  <img src="https://img.shields.io/badge/Jetpack%20Compose-4285F4?style=for-the-badge&logo=android&logoColor=white" />
-  <img src="https://img.shields.io/badge/Material%20Design-757575?style=for-the-badge&logo=material-design&logoColor=white" />
-  
-  <!-- Development & IDE -->
-  <img src="https://img.shields.io/badge/Android%20Studio-3DDC84?style=for-the-badge&logo=android-studio&logoColor=white" />
-  <img src="https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=white" />
-  <img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white" />
-
-  <!-- UI/UX & Animation -->
-  <img src="https://img.shields.io/badge/Lottie-FCBA03?style=for-the-badge&logo=lottie&logoColor=black" />
-  
-  <!-- App Features -->
-  <img src="https://img.shields.io/badge/Accessibility-FFD600?style=for-the-badge&logo=android&logoColor=black" />
-  <img src="https://img.shields.io/badge/Overlay%20Service-9C27B0?style=for-the-badge&logo=android&logoColor=white" />
-  <img src="https://img.shields.io/badge/Usage%20Analytics-2196F3?style=for-the-badge&logo=google-analytics&logoColor=white" />
-  <img src="https://img.shields.io/badge/Custom%20Themes-E91E63?style=for-the-badge&logo=color&logoColor=white" />
-  <img src="https://img.shields.io/badge/Multi-Language-607D8B?style=for-the-badge&logo=translate&logoColor=white" />
-</p>
 
 ---
 
