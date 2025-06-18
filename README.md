@@ -74,7 +74,8 @@ Switch instantly between **English** and **Arabic**, fully localized UI & RTL su
 | Splash | Apps list screen | Settings 
 |--------------|---------------|----------|
 | ![splash](screenshots/splash.png) | ![Apps](screenshots/home.png) | ![Settings](screenshots/settings.png) |
-| Light theme | App details screen 
+
+| Light theme | App details screen |
 |--------------|---------------|
 | ![light theme](screenshots/light.png) | ![Apps](screenshots/app_screen.png) | 
 ---
