@@ -78,7 +78,7 @@ Switch instantly between **English** and **Arabic**, fully localized UI & RTL su
 
 ## 📲 Installation & Setup
 
-1. Download latest version from [Here](https://github.com/HemakoX/Aware/releases/download/v1.0/Aware.apk) 
+1. Download latest version from [Here](https://github.com/HemakoX/Aware/releases/download/v1.1.2/Aware.apk) 
 3. Grant the required **accessibility** & **overlay** permissions
 4. if **accessibility** permission was grayed off try unloack `restricted settings` for the app
 5. Customize your theme & get aware instantly
