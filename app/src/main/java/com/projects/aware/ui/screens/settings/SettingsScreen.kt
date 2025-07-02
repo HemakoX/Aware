@@ -2,16 +2,19 @@
 
 package com.projects.aware.ui.screens.settings
 
+import android.content.Intent
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,30 +36,46 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.LockOpen
+import androidx.compose.material.icons.filled.SyncLock
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.material.icons.outlined.LockOpen
+import androidx.compose.material.icons.outlined.PrivacyTip
+import androidx.compose.material.icons.outlined.SyncLock
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ColorScheme
+import androidx.compose.material3.Divider
+import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -64,6 +83,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
@@ -89,11 +109,14 @@ fun SettingsScreen(
 ) {
     BackHandler { back() }
     val context = LocalContext.current
-    val theme by settingsViewModel.theme.collectAsStateWithLifecycle()
-    val language by settingsViewModel.language.collectAsStateWithLifecycle()
+    val settings by settingsViewModel.awareSettings.collectAsStateWithLifecycle()
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
+                colors = topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface
+                ),
                 title = {
                     Text(
                         text = stringResource(R.string.settings),
@@ -118,17 +141,16 @@ fun SettingsScreen(
         }
     ) { innerPadding ->
         LazyColumn(
-            modifier = modifier,
+            modifier = modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp), // Add horizontal padding
             contentPadding = innerPadding,
-            horizontalAlignment = Alignment.Start,
-            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp), // Add spacing between items
         ) {
             item {
-                ThemeSettings(
-                    onThemeChange = {
-                        settingsViewModel.updateTheme(it)
-                    },
-                    currentTheme = theme!!
+                SetPasswordCard(
+                    viewModel = settingsViewModel,
                 )
             }
             item {
@@ -137,7 +159,15 @@ fun SettingsScreen(
                         settingsViewModel.updateLanguage(it)
                         restartApp(context = context)
                     },
-                    currentLanguage = language
+                    currentLanguage = settings.language
+                )
+            }
+            item {
+                ThemeSettings(
+                    onThemeChange = {
+                        settingsViewModel.updateTheme(it)
+                    },
+                    currentTheme = settings.theme!!
                 )
             }
             item {
@@ -145,8 +175,168 @@ fun SettingsScreen(
                     settingsViewModel = settingsViewModel
                 )
             }
+            item {
+                DisableAwareButton(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp), // Vertical padding for the button
+                ) {
+                    settingsViewModel.setDisabilityState(true)
+                    val intent = Intent("com.aware.activity.settings.disability").apply {
+                        putExtra("is_disabled", true)
+                    }
+                    context.sendBroadcast(intent)
+                }
+            }
         }
 
+    }
+}
+
+
+@Composable
+fun SetPasswordCard(modifier: Modifier = Modifier, viewModel: SettingsViewModel) {
+    val settings by viewModel.awareSettings.collectAsStateWithLifecycle()
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+    ) {
+        // Header with icon
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(bottom = 12.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.PrivacyTip,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(20.dp)
+            )
+            Spacer(modifier = Modifier.width(12.dp))
+            Text(
+                text = stringResource(R.string.privacy_and_security),
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
+
+        // Password card
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
+            ),
+            border = BorderStroke(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.outlineVariant
+            )
+        ) {
+            Column(modifier = Modifier.padding(vertical = 8.dp)) {
+                AnimatedContent(
+                    targetState = viewModel.isPinSet(),
+                    transitionSpec = { fadeIn().togetherWith(fadeOut()) }
+                ) { isPasswordSet ->
+                    if (!isPasswordSet) {
+                        SettingsItem(
+                            icon = Icons.Outlined.Lock,
+                            title = stringResource(R.string.set_PIN),
+                            subtitle = stringResource(R.string.add_extra_security_to_your_app),
+                            onClick = { viewModel.setNewDialogType(PasswordDialogType.SET) },
+                            containerColor = MaterialTheme.colorScheme.surface,
+                            iconTint = MaterialTheme.colorScheme.primary
+                        )
+                    } else {
+                        Column {
+                            SettingsItem(
+                                icon = Icons.Outlined.SyncLock,
+                                title = stringResource(R.string.change_PIN),
+                                subtitle = stringResource(R.string.update_your_current_password),
+                                onClick = { viewModel.setNewDialogType(PasswordDialogType.CHANGE) }
+                            )
+
+                            HorizontalDivider(
+                                modifier = Modifier.padding(horizontal = 16.dp),
+                                thickness = 0.5.dp,
+                                color = MaterialTheme.colorScheme.outlineVariant
+                            )
+
+                            SettingsItem(
+                                icon = Icons.Outlined.LockOpen,
+                                title = stringResource(R.string.remove_PIN),
+                                subtitle = stringResource(R.string.disable_password_protection),
+                                onClick = { viewModel.setNewDialogType(PasswordDialogType.REMOVE) },
+                                contentColor = MaterialTheme.colorScheme.error,
+                                iconTint = MaterialTheme.colorScheme.error
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+    DialogsManager(
+        currentDialogType = settings.passwordSettings.dialogType,
+        viewModel = viewModel,
+        onDismiss = { viewModel.setNewDialogType(PasswordDialogType.NONE) }
+    )
+}
+
+@Composable
+fun SettingsItem(
+    icon: ImageVector,
+    title: String,
+    subtitle: String? = null,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    containerColor: Color = MaterialTheme.colorScheme.surface,
+    contentColor: Color = MaterialTheme.colorScheme.onSurface,
+    iconTint: Color = contentColor
+) {
+    Surface(
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
+        color = containerColor,
+        shape = MaterialTheme.shapes.medium
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = iconTint,
+                modifier = Modifier.size(24.dp)
+            )
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = contentColor
+                )
+                if (subtitle != null) {
+                    Text(
+                        text = subtitle,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = contentColor.copy(alpha = 0.7f)
+                    )
+                }
+            }
+
+            Icon(
+                imageVector = Icons.Default.ChevronRight,
+                contentDescription = "Action",
+                tint = contentColor.copy(alpha = 0.6f),
+                modifier = Modifier.size(20.dp)
+            )
+        }
     }
 }
 
@@ -345,7 +535,44 @@ fun ThemePreviewCard(
 }
 
 fun themeName(theme: AppTheme): String {
-    return theme.name.split("_").joinToString(" ") { it.lowercase().replaceFirstChar { it.uppercase() } }
+    return theme.name.split("_")
+        .joinToString(" ") { it.lowercase().replaceFirstChar { it.uppercase() } }
+}
+
+
+@Composable
+fun DisableAwareButton(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    FilledTonalButton(
+        onClick = onClick,
+        modifier = modifier,
+        colors = ButtonDefaults.filledTonalButtonColors(
+            containerColor = MaterialTheme.colorScheme.errorContainer,
+            contentColor = MaterialTheme.colorScheme.onErrorContainer
+        ),
+        shape = MaterialTheme.shapes.medium,
+        elevation = ButtonDefaults.buttonElevation(
+            defaultElevation = 2.dp,
+            pressedElevation = 4.dp
+        )
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Warning,
+                contentDescription = null,
+                modifier = Modifier.size(20.dp)
+            )
+            Text(
+                text = stringResource(R.string.disable_aware),
+                style = MaterialTheme.typography.labelLarge
+            )
+        }
+    }
 }
 
 @Composable
@@ -363,7 +590,7 @@ fun ExpandableFeedbackCard(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .padding(16.dp)
+            .padding(8.dp)
             .animateContentSize(),
         elevation = CardDefaults.cardElevation(2.dp),
         shape = MaterialTheme.shapes.large,
@@ -389,7 +616,7 @@ fun ExpandableFeedbackCard(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(16.dp)
-                ){
+                ) {
                     if (!expanded) {
                         Button(
                             onClick = { isExpanded = true },

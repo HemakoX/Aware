@@ -55,7 +55,6 @@ import com.projects.aware.ui.screens.overlay.OverlaySettingsViewModel
 import com.projects.aware.ui.screens.settings.SettingsScreen
 
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun HomeScreen(
     appsViewModel: AppsViewModel,
@@ -64,15 +63,17 @@ fun HomeScreen(
     homeScreenNavController: NavHostController = rememberNavController(),
     overlaySettingsViewModel: OverlaySettingsViewModel,
 ) {
-    var selectedTab by rememberSaveable { mutableStateOf(BottomNavTab.AppsList) }
+    var currentTab by rememberSaveable { mutableStateOf(BottomNavTab.AppsList) }
     Scaffold(
         bottomBar = {
             CustomAnimatedBottomNavBar(
-                selectedTab = selectedTab
+                selectedTab = currentTab
             ) { selectedTap ->
-                selectedTab = selectedTap
-                homeScreenNavController.navigate(selectedTap.name) {
-                    popUpTo(selectedTap.name) { inclusive = true }
+                if (currentTab != selectedTap) {
+                    currentTab = selectedTap
+                    homeScreenNavController.navigate(selectedTap.name) {
+                        popUpTo(selectedTap.name) { inclusive = true }
+                    }
                 }
             }
         }
@@ -94,7 +95,7 @@ fun HomeScreen(
             composable(BottomNavTab.Settings.name) {
                 SettingsScreen(
                     settingsViewModel = themeViewModel,
-                    back = { selectedTab = BottomNavTab.AppsList }
+                    back = { homeScreenNavController.popBackStack() }
                 )
             }
         }

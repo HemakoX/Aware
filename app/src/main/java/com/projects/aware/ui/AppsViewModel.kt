@@ -42,17 +42,21 @@ class AppsViewModel(
         getApps()
         getUiApps()
         getTotalUsageTime()
+        checkAllAppsTrackable()
     }
 
-    fun updateState(excludedApp: ExcludedApp) {
-        _excludedApps.update {
-            it.copy(
-                apps = it.apps.map { app -> if (app?.packageName == excludedApp.packageName) excludedApp else app }
-            )
+    private fun updateState(excludedApp: ExcludedApp) {
+        viewModelScope.launch(Dispatchers.Default) {
+            _excludedApps.update {
+                it.copy(
+                    apps = it.apps.map { app -> if (app?.packageName == excludedApp.packageName) excludedApp else app }
+                )
+            }
+            checkAllAppsTrackable()
         }
     }
 
-    fun clearState() {
+    private fun clearState() {
         _uiApps.update { it.copy(uiApps = emptyList(), allApps = emptyList()) }
     }
 
@@ -105,6 +109,20 @@ class AppsViewModel(
         }
     }
 
+    private fun checkAllAppsTrackable() {
+        viewModelScope.launch {
+            val packages = _uiApps.value.allApps.map { it.packageName }
+            val trackable = packages.all {
+                objectBoxManager.getAppByPackage(it) == null
+            }
+            _uiApps.update {
+                it.copy(
+                    allAppsTrackable = trackable
+                )
+            }
+        }
+    }
+
     fun sortAppsBy(method: String) {
         viewModelScope.launch {
             val sortType = SortType.valueOf(method)
@@ -128,12 +146,10 @@ class AppsViewModel(
         if (segmented == homeSegmentedButton.value) return
         homeSegmentedButton.update { segmented }
 
-        if (homeSegmentedButton.value.storeName == HomeSegments.All.name) {
-            switchToAll()
-        } else if (homeSegmentedButton.value.storeName == HomeSegments.Used.name) {
-            switchToUsed()
-        } else if (homeSegmentedButton.value.storeName == HomeSegments.Limited.name) {
-            switchToLimitedApps()
+        when (homeSegmentedButton.value.storeName) {
+            HomeSegments.All.name -> switchToAll()
+            HomeSegments.Used.name -> switchToUsed()
+            HomeSegments.Limited.name -> switchToLimitedApps()
         }
         sortAppsBy(sortTypeState.value.name)
     }
@@ -169,13 +185,7 @@ class AppsViewModel(
         queryState.update { query }
         viewModelScope.launch(Dispatchers.Default) {
             if (queryState.value.isBlank()) {
-                if (homeSegmentedButton.value.storeName == HomeSegments.All.name) {
-                    switchToLimitedApps()
-                } else if (homeSegmentedButton.value.storeName == HomeSegments.Used.name) {
-                    switchToUsed()
-                } else if (homeSegmentedButton.value.storeName == HomeSegments.Limited.name) {
-                    switchToLimitedApps()
-                }
+               switchSegmentedHomeApps(homeSegmentedButton.value)
             } else {
                 _uiApps.update {
                     it.copy(
@@ -192,11 +202,6 @@ class AppsViewModel(
         }
     }
 
-    fun updateSearchFocus(isFocused: Boolean) {
-        if (!isFocused) {
-            searchQuery("")
-        }
-    }
 
     fun updateCurrentApp(app: App) {
         _uiApps.update {
@@ -242,6 +247,23 @@ class AppsViewModel(
                 }
             }
         }
+    }
+
+    fun updateAllAppsState(trackable: Boolean) {
+        viewModelScope.launch(Dispatchers.Default) {
+            _uiApps.value.allApps.forEach {
+                updateTrackingAppState(
+                    pkg = it.packageName,
+                    countable = trackable
+                )
+            }
+            _uiApps.update {
+                it.copy(
+                    allAppsTrackable = trackable,
+                )
+            }
+        }
+
     }
 
     fun isAppTrackable(pkg: String): Boolean {
@@ -291,6 +313,7 @@ class AppsViewModel(
 data class UIAppsState(
     val uiApps: List<App> = listOf(),
     val allApps: List<App> = listOf(),
+    val allAppsTrackable: Boolean = true,
     val totalUsageTime: Long = 0,
     val currentApp: App? = null
 )

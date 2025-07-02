@@ -14,7 +14,6 @@ import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.provider.Settings
-import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -23,7 +22,10 @@ import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.compose.ui.graphics.toArgb
+import androidx.core.content.edit
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.projects.aware.R
 import com.projects.aware.data.db.ObjectBoxManager
 import com.projects.aware.data.repo.App
@@ -31,7 +33,8 @@ import com.projects.aware.data.repo.AppsRepo
 import com.projects.aware.data.repo.formatDuration
 import com.projects.aware.data.repo.isLauncherApp
 import com.projects.aware.main.AwareApp
-import com.projects.aware.service.foreground.LimitDialogActivity
+import com.projects.aware.main.MainActivity
+import com.projects.aware.main.LimitDialogActivity
 import com.projects.aware.ui.screens.overlay.OverlaySettings
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -40,6 +43,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.Locale
 import kotlin.math.absoluteValue
 
 class AwareAccessibilityService : AccessibilityService() {
@@ -47,6 +51,7 @@ class AwareAccessibilityService : AccessibilityService() {
     private val serviceScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
     private lateinit var windowManager: WindowManager
     private lateinit var overlayView: View
+    private lateinit var bubbleMenuView: View
     private lateinit var layoutParams: WindowManager.LayoutParams
     private lateinit var app: AwareApp
     private lateinit var settings: OverlaySettings
@@ -55,6 +60,7 @@ class AwareAccessibilityService : AccessibilityService() {
 
     // State variables
     private var currentApp: String? = null
+    private var isDisabled: Boolean = false
     private var sessionTimeMillis: Long = 0
     private var totalTimeMillis: Long = 0
     private var currentAppInfo: App? = null
@@ -73,7 +79,14 @@ class AwareAccessibilityService : AccessibilityService() {
                 } else {
                     hideOverlay()
                 }
-            } else if (intent?.action == "com.aware.overlay.settings.update") {
+            }
+            else if (intent?.action == "com.aware.overlay.settings.update") {
+                setupOverlay()
+            }
+            else if (intent?.action == "com.aware.activity.settings.disability" ||
+                intent?.action == "com.aware.settings.language"
+            ) {
+                isDisabled = intent.getBooleanExtra("is_disabled", false)
                 setupOverlay()
             }
         }
@@ -83,6 +96,8 @@ class AwareAccessibilityService : AccessibilityService() {
         val intentFilter = IntentFilter().apply {
             addAction("com.aware.actions.OverlayVisibility")
             addAction("com.aware.overlay.settings.update")
+            addAction("com.aware.activity.settings.disability")
+            addAction("com.aware.settings.language")
         }
 
         val flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -111,7 +126,7 @@ class AwareAccessibilityService : AccessibilityService() {
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
-        if (event == null) return
+        if (event == null || isDisabled) return
         if (event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED ||
             event.eventType == AccessibilityEvent.TYPE_WINDOWS_CHANGED
         ) {
@@ -160,6 +175,7 @@ class AwareAccessibilityService : AccessibilityService() {
         windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
         val inflater = getSystemService(LAYOUT_INFLATER_SERVICE) as LayoutInflater
         overlayView = inflater.inflate(R.layout.overlay_layout, null)
+        bubbleMenuView = inflater.inflate(R.layout.bubble_menu, null)
 
 
         layoutParams = WindowManager.LayoutParams(
@@ -184,25 +200,25 @@ class AwareAccessibilityService : AccessibilityService() {
         var initialY = 0
         var initialTouchX = 0f
         var initialTouchY = 0f
-        // Constants
-        val DOUBLE_CLICK_TIME_DELTA: Long = 300 // Milliseconds between clicks
-        var lastClickTime: Long = 0
+
+        var lastClickTime = 0L
+        val doubleClickDefaultDelta: Long = 300 // milliseconds
 
         overlayView.setOnClickListener {
             val clickTime = System.currentTimeMillis()
-            if (clickTime - lastClickTime < DOUBLE_CLICK_TIME_DELTA) {
-                // Double-click detected!
-                hideOverlay()
-                it.performHapticFeedback(10)
-                lastClickTime = 0 // Reset to avoid triple-click false positives
+            if (clickTime - lastClickTime < doubleClickDefaultDelta) {
+                // Double click detected
+                showBubbleMenu()
+                lastClickTime = 0L // reset
             } else {
-                // Single click (handle separately if needed)
+                // Single click, wait for possible second click
                 lastClickTime = clickTime
             }
-            true
         }
 
+
         overlayView.setOnTouchListener { v, event ->
+
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
                     initialX = layoutParams.x
@@ -241,18 +257,28 @@ class AwareAccessibilityService : AccessibilityService() {
         val bubbleContainer = overlayView.findViewById<View>(R.id.bubble_container)
 
         settings = app.container.preferencesManager.getOverlaySettings()
+        isDisabled = app.container.preferencesManager.getDisabilityState()
+        val language = app.container.preferencesManager.getLanguage()
+
+        bubbleContainer.layoutDirection =
+            if (language == "ar") View.LAYOUT_DIRECTION_RTL else View.LAYOUT_DIRECTION_LTR
 
         visibilitySetting = settings.isBubbleVisible
-        overlayView.visibility = if (visibilitySetting) View.VISIBLE else View.INVISIBLE
+        overlayView.visibility =
+            if (visibilitySetting && !isDisabled) View.VISIBLE else View.INVISIBLE
 
         appIcon.visibility = if (settings.showAppIcon) View.VISIBLE else View.GONE
         appName.visibility = if (settings.showAppName) View.VISIBLE else View.GONE
         appTime.visibility = if (settings.showAppUsage) View.VISIBLE else View.GONE
 
+
         // adjusting props
         appName.setTextColor(settings.textColor.toArgb())
         appTime.setTextColor(settings.textColor.toArgb())
         bubbleContainer.setBackgroundColor(settings.background.toArgb())
+
+        bubbleContainer.scaleX = settings.size
+        bubbleContainer.scaleY = settings.size
 
 
         // adding background props
@@ -292,12 +318,13 @@ class AwareAccessibilityService : AccessibilityService() {
 
     }
 
-    suspend fun updateBubble(name: String?, timeFormatted: String, icon: Drawable?) {
+    private suspend fun updateBubble(name: String?, timeFormatted: String, icon: Drawable?) {
         val timeView = overlayView.findViewById<TextView>(R.id.app_time)
         val iconView = overlayView.findViewById<ImageView>(R.id.app_icon)
         val nameView = overlayView.findViewById<TextView>(R.id.app_name)
         withContext(Dispatchers.Main) {
-            nameView.text = name?.capitalize()
+            nameView.text =
+                name?.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
             timeView.text = timeFormatted
             iconView.setImageDrawable(icon)
         }
@@ -311,17 +338,20 @@ class AwareAccessibilityService : AccessibilityService() {
             launch {
                 // checking app limits
                 while (isActive) {
-                    currentApp?.let {
-                        val app = withContext(Dispatchers.IO) {
-                            getAppInfo(applicationContext, appsRepo = appsRepo, pkg = it)
-                        }
-                        val limits = objectBoxManager.limits.all
-                        val appLimit = limits.find { it?.packageName == app?.packageName }
-                        val shouldBlock = appLimit != null && totalTimeMillis >= appLimit.dailyLimit
+                    if (!isDisabled) {
+                        currentApp?.let {
+                            val app = withContext(Dispatchers.IO) {
+                                getAppInfo(applicationContext, appsRepo = appsRepo, pkg = it)
+                            }
+                            val limits = objectBoxManager.limits.all
+                            val appLimit = limits.find { it?.packageName == app?.packageName }
+                            val shouldBlock =
+                                appLimit != null && totalTimeMillis >= appLimit.dailyLimit
 
-                        if (shouldBlock) {
-                            withContext(Dispatchers.Main) {
-                                blockApp(appLimit.dailyLimit)
+                            if (shouldBlock) {
+                                withContext(Dispatchers.Main) {
+                                    blockApp(appLimit!!.dailyLimit)
+                                }
                             }
                         }
                     }
@@ -332,25 +362,84 @@ class AwareAccessibilityService : AccessibilityService() {
             launch {
                 // session change
                 while (isActive) {
-                    sessionTimeMillis += 1000L
-                    totalTimeMillis += 1000L
+                    if (!isDisabled) {
+                        sessionTimeMillis += 1000L
+                        totalTimeMillis += 1000L
 
-                    if (!visibilitySetting) {
-                        delay(1000L)
-                        continue
+                        if (!visibilitySetting) {
+                            delay(1000L)
+                            continue
+                        }
+
+                        val name = currentAppInfo?.name ?: "refresh"
+                        updateBubble(
+                            timeFormatted = formatDuration(totalTimeMillis),
+                            icon = currentAppInfo?.icon,
+                            name = if (name.length > 10) name.substring(0, 8) + ".." else name
+                        )
                     }
-
-                    val name = currentAppInfo?.name ?: "refresh"
-                    updateBubble(
-                        timeFormatted = formatDuration(totalTimeMillis),
-                        icon = currentAppInfo?.icon,
-                        name = if (name.length > 10) name.substring(0, 8) + ".." else name
-                    )
                     delay(1000L)
                 }
             }
         }
     }
+
+
+    private fun showBubbleMenu(context: Context = applicationContext) {
+        val dialog = BottomSheetDialog(context)
+        val view = LayoutInflater.from(context).inflate(R.layout.bubble_menu, null)
+        dialog.setContentView(view)
+
+        // 👉 This is the fix: set dialog as a system overlay
+        dialog.window?.setType(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY)
+
+
+        // Auto-close after 5 seconds
+        view.postDelayed({ dialog.dismiss() }, 5000)
+
+        view.findViewById<TextView>(R.id.open_app).setOnClickListener {
+            val intent = Intent(context, MainActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            context.startActivity(intent)
+            dialog.dismiss()
+        }
+
+        view.findViewById<TextView>(R.id.disable_aware).setOnClickListener {
+            context.getSharedPreferences("settings_prefs", Context.MODE_PRIVATE)
+                .edit {
+                    putBoolean("app_disability", true)
+                }
+            Toast.makeText(context, getString(R.string.disable_aware), Toast.LENGTH_SHORT).show()
+            val intent = Intent("com.aware.activity.settings.disability").apply {
+                putExtra("is_disabled", true)
+            }
+            sendBroadcast(intent)
+            isDisabled = true
+            hideOverlay()
+            dialog.dismiss()
+        }
+
+        view.findViewById<TextView>(R.id.disable_bubble).setOnClickListener {
+            context.getSharedPreferences("overlay_settings_prefs", Context.MODE_PRIVATE)
+                .edit {
+                    putBoolean("is_bubble_visible", false)
+                }
+            visibilitySetting = false
+            hideOverlay()
+            Toast.makeText(context, getString(R.string.disable_live_bubble), Toast.LENGTH_SHORT)
+                .show()
+
+            val intent = Intent("com.aware.overlay.settings.disability").apply {
+                putExtra("is_visible", false)
+            }
+            sendBroadcast(intent)
+
+            dialog.dismiss()
+        }
+
+        dialog.show()
+    }
+
 
     // helper functions
     fun getAppInfo(context: Context, pkg: String, appsRepo: AppsRepo): App? {

@@ -1,10 +1,10 @@
 package com.projects.aware.ui.screens.splash
 
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,10 +20,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.projects.aware.main.settings.SettingsViewModel
+import com.projects.aware.ui.components.PinEntryField
 import com.valentinilk.shimmer.LocalShimmerTheme
 import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
@@ -31,7 +35,15 @@ import com.valentinilk.shimmer.shimmer
 import kotlinx.coroutines.delay
 
 @Composable
-fun SplashScreen(modifier: Modifier = Modifier, onFinish: () -> Unit) {
+fun SplashScreen(
+    modifier: Modifier = Modifier,
+    settingsViewModel: SettingsViewModel,
+    onFinish: () -> Unit,
+) {
+
+    val context = LocalContext.current
+    val settings by settingsViewModel.awareSettings.collectAsStateWithLifecycle()
+
     var showSubtitle by remember { mutableStateOf(false) }
     val textColor by animateColorAsState(
         targetValue = if (showSubtitle) MaterialTheme.colorScheme.primary else Color.LightGray,
@@ -41,7 +53,9 @@ fun SplashScreen(modifier: Modifier = Modifier, onFinish: () -> Unit) {
         delay(700)
         showSubtitle = true
         delay(1000)
-        onFinish()
+        if (!settings.passwordSettings.isPasswordSet || settings.passwordSettings.isAuth) {
+            onFinish()
+        }
     }
     val shimmerInstance = rememberShimmer(
         shimmerBounds = ShimmerBounds.View,
@@ -59,7 +73,12 @@ fun SplashScreen(modifier: Modifier = Modifier, onFinish: () -> Unit) {
             }
         )
     )
-    Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+    Column(
+        modifier = modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
@@ -92,5 +111,27 @@ fun SplashScreen(modifier: Modifier = Modifier, onFinish: () -> Unit) {
                 }
             }
         }
+
+        AnimatedVisibility(visible = showSubtitle && !settings.passwordSettings.isAuth && settings.passwordSettings.isPasswordSet) {
+            PinEntryField(
+                modifier = Modifier.padding(top = 100.dp),
+                pinLength = 4,
+                onPinEntered = {
+                    settingsViewModel.verifyPin(
+                        it, onSuccess = {
+                            onFinish()
+                        },
+                        onError = {
+                            Toast.makeText(
+                                context,
+                                "Incorrect password",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        })
+                }
+
+            )
+        }
     }
+
 }

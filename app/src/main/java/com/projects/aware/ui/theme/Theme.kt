@@ -1,6 +1,5 @@
 package com.projects.aware.ui.theme
 
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -11,9 +10,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.projects.aware.main.settings.AppTheme
 import com.projects.aware.main.settings.SettingsViewModel
-import com.projects.aware.main.settings.toColorScheme
+import com.projects.aware.ui.ViewModelsProvider
 
 private val lightScheme = lightColorScheme(
     primary = primaryLight,
@@ -257,18 +257,20 @@ val unspecified_scheme = ColorFamily(
 
 @Composable
 fun AwareTheme(
-    themeViewModel: SettingsViewModel,
+    settingsViewModel: SettingsViewModel = viewModel(
+        factory = ViewModelsProvider.Factory
+    ),
     content: @Composable() () -> Unit
 ) {
-    val theme by themeViewModel.theme.collectAsStateWithLifecycle()
-    Crossfade(theme) { theme ->
+    val settings by settingsViewModel.awareSettings.collectAsStateWithLifecycle()
+    Crossfade(settings.theme) { theme ->
         if (theme == null) {
-            themeViewModel.updateTheme(
+            settingsViewModel.updateTheme(
                 if (isSystemInDarkTheme()) AppTheme.LUXURY_DARK else AppTheme.LUXURY_LIGHT
             )
         } else {
             MaterialTheme(
-                colorScheme = themeViewModel.getTheme(theme),
+                colorScheme = settingsViewModel.getTheme(theme),
                 typography = AppTypography,
                 content = content
             )

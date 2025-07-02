@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menu_open_app"
+        android:title="Open Aware"
+        android:icon="@android:drawable/ic_menu_view" />
+
+    <item
+        android:id="@+id/menu_disable_aware"
+        android:title="Disable Aware Temporarily"
+        android:icon="@android:drawable/ic_media_pause" />
+
+    <item
+        android:id="@+id/menu_disable_bubble"
+        android:title="Disable Bubble"
+        android:icon="@android:drawable/ic_menu_close_clear_cancel" />
+</menu>

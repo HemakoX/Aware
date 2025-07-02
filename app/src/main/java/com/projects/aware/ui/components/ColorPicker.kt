@@ -32,7 +32,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.github.skydoves.colorpicker.compose.AlphaSlider
-import com.github.skydoves.colorpicker.compose.AlphaTile
 import com.github.skydoves.colorpicker.compose.BrightnessSlider
 import com.github.skydoves.colorpicker.compose.ColorEnvelope
 import com.github.skydoves.colorpicker.compose.ColorPickerController
@@ -93,12 +92,15 @@ fun ColorPick(
     ) {
         Text(
             stringResource(R.string.pick_a_color), modifier = Modifier
-            .fillMaxWidth()
-            .padding(10.dp),
-            textAlign = TextAlign.Center, style = MaterialTheme.typography.titleLarge)
-        HorizontalDivider(Modifier
-            .fillMaxWidth()
-            .padding(bottom = 20.dp))
+                .fillMaxWidth()
+                .padding(10.dp),
+            textAlign = TextAlign.Center, style = MaterialTheme.typography.titleLarge
+        )
+        HorizontalDivider(
+            Modifier
+                .fillMaxWidth()
+                .padding(bottom = 20.dp)
+        )
         HsvColorPicker(
             modifier = modifier
                 .fillMaxWidth()
@@ -133,7 +135,7 @@ fun ColorPick(
                         .padding(10.dp)
                         .clip(RoundedCornerShape(20, 0, 20, 0))
                         .height(30.dp),
-                    initialColor = initialColor
+                    initialColor = Color.White
                 )
             }
         }
@@ -143,7 +145,7 @@ fun ColorPick(
         )
         Card(
             colors = CardDefaults.cardColors(
-               containerColor = animatedCardColor
+                containerColor = animatedCardColor
             )
         ) {
             Column(
@@ -172,7 +174,10 @@ fun ColorPick(
                     initialColor = initialColor
                 )
                 AnimatedVisibility(controller.selectedColor.value.alpha < 0.3f) {
-                    Text(stringResource(R.string.translucency_must_be_over_50), style = MaterialTheme.typography.bodyMedium)
+                    Text(
+                        stringResource(R.string.translucency_must_be_over_50),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
                 }
             }
         }

@@ -1,21 +1,15 @@
 package com.projects.aware.ui.screens.overlay
 
-import android.os.Parcelable
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
 import com.projects.aware.data.repo.PreferencesManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.parcelize.Parcelize
-import kotlinx.parcelize.RawValue
 
 class OverlaySettingsViewModel(
     private val preferencesManager: PreferencesManager,
-): ViewModel() {
+) : ViewModel() {
     private val _overlaySettings = MutableStateFlow(preferencesManager.getOverlaySettings())
     val overlaySettings = _overlaySettings.asStateFlow()
 
@@ -31,6 +25,10 @@ class OverlaySettingsViewModel(
 
     fun updateCornerRadius(degree: Float) {
         _overlaySettings.update { it.copy(cornerRadius = degree.toInt()) }
+    }
+
+    fun updateBubbleSize(size: Float) {
+        _overlaySettings.update { it.copy(size = size) }
     }
 
     fun updateTextColor(color: Color) {
@@ -60,28 +58,7 @@ data class OverlaySettings(
     val showAppName: Boolean = true,
     val showAppUsage: Boolean = true,
     val cornerRadius: Int = 10,
+    val size: Float = 1f,
     val showAppIcon: Boolean = true,
     val isBubbleVisible: Boolean = false,
-)
-
-
-@Parcelize
-data class OverlaySettingsParcelize(
-    val background: Int = Color.Black.toArgb(),
-    val textColor: Int = Color.White.toArgb(),
-    val showAppName: Boolean = true,
-    val showAppUsage: Boolean = true,
-    val cornerRadius: Int = 10,
-    val showAppIcon: Boolean = true,
-    val isBubbleVisible: Boolean = false,
-): Parcelable
-
-fun OverlaySettings.parcelize() = OverlaySettingsParcelize(
-    background = this.background.toArgb(),
-    textColor = this.textColor.toArgb(),
-    showAppIcon = this.showAppIcon,
-    showAppUsage = this.showAppUsage,
-    showAppName = this.showAppName,
-    cornerRadius = this.cornerRadius,
-    isBubbleVisible = this.isBubbleVisible
 )

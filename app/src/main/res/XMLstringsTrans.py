@@ -1,6 +1,7 @@
 import xml.etree.ElementTree as ET
 from googletrans import Translator
 import os
+import asyncio
 
 
 def format_key_to_english_value(key):
@@ -22,17 +23,21 @@ def add_strings_to_xml(tree, new_strings):
             root.append(new_elem)
 
 
-def translate_strings(strings_dict, dest_lang='ar'):
+async def translate_strings(strings_dict, dest_lang='ar'):
     translator = Translator()
     translations = {}
     for k, v in strings_dict.items():
-        translated_text = translator.translate(v, dest=dest_lang).text
-        translations[k] = translated_text
+        try:
+            result = await translator.translate(v, dest=dest_lang)
+            translations[k] = result.text
+        except Exception as e:
+            print(f"Translation failed for '{v}': {e}")
+            translations[k] = v  # fallback to original
     return translations
 
 
 def prettify(elem, level=0):
-    # Add indentation for pretty xml output
+    # Add indentation for pretty XML output
     indent = "    "
     i = "\n" + level * indent
     if len(elem):
@@ -49,7 +54,7 @@ def prettify(elem, level=0):
 
 def main():
     keys = [
-        "apply_changes",
+        "i_understand"
     ]
 
     # Format keys to English values
@@ -63,11 +68,12 @@ def main():
 
     add_strings_to_xml(eng_tree, eng_strings)
     prettify(eng_tree.getroot())
+    os.makedirs('values', exist_ok=True)
     eng_tree.write('values/strings.xml', encoding='utf-8', xml_declaration=True)
-    print("Updated English strings.xml")
+    print("✅ Updated English strings.xml")
 
-    # Translate to Arabic
-    ar_strings = translate_strings(eng_strings, 'ar')
+    # Translate to Arabic (async)
+    ar_strings = asyncio.run(translate_strings(eng_strings, 'ar'))
 
     # Load or create Arabic strings.xml
     if os.path.exists('values-ar/strings.xml'):
@@ -79,7 +85,7 @@ def main():
     prettify(ar_tree.getroot())
     os.makedirs('values-ar', exist_ok=True)
     ar_tree.write('values-ar/strings.xml', encoding='utf-8', xml_declaration=True)
-    print("Created/Updated Arabic strings.xml")
+    print("✅ Created/Updated Arabic strings.xml")
 
 
 if __name__ == "__main__":

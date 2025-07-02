@@ -38,7 +38,6 @@ import androidx.compose.material.icons.filled.TrackChanges
 import androidx.compose.material.icons.outlined.AlarmAdd
 import androidx.compose.material.icons.outlined.MonitorHeart
 import androidx.compose.material.icons.outlined.Schedule
-import androidx.compose.material.icons.outlined.Timelapse
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -47,7 +46,6 @@ import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
@@ -136,243 +134,239 @@ fun AppDetailScreen(
 
     val lazyListState = rememberLazyListState()
     BackHandler { onBack() }
-    Surface {
-        LazyColumn(
-            modifier = modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            state = lazyListState,
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            item {
-                // Header Section
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(top = 16.dp)
-                ) {
-                    SubcomposeAsyncImage(
-                        model = ImageRequest.Builder(context).data(
-                            try {
-                                app.icon ?: run {
-                                    val icon = context.packageManager.getApplicationIcon(app.packageName)
-                                    appsViewModel.updateAppData(app.copy(icon = icon))
-                                    icon
-                                }
-                            } catch (e: Exception) {
-                                null
+
+    LazyColumn(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        state = lazyListState,
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        item {
+            // Header Section
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(top = 16.dp)
+            ) {
+                SubcomposeAsyncImage(
+                    model = ImageRequest.Builder(context).data(
+                        try {
+                            app.icon ?: run {
+                                val icon =
+                                    context.packageManager.getApplicationIcon(app.packageName)
+                                appsViewModel.updateAppData(app.copy(icon = icon))
+                                icon
                             }
-                        )
-                            .crossfade(true)
-                            .build(),
-                        contentDescription = app.name,
-                        modifier = Modifier
-                            .size(64.dp)
-                            .clip(RoundedCornerShape(16.dp)),
-                        loading = {
-                            Box(
-                                modifier = Modifier
-                                    .size(64.dp)
-                                    .clip(RoundedCornerShape(16.dp))
-                                    .shimmer()
-                            )
-                        },
-                        error = {
-                            Box(
-                                modifier = Modifier
-                                    .size(64.dp)
-                                    .clip(RoundedCornerShape(16.dp))
-                                    .background(MaterialTheme.colorScheme.surfaceVariant),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Android,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.size(32.dp)
-                                )
-                            }
+                        } catch (e: Exception) {
+                            null
                         }
                     )
-
-                    Spacer(modifier = Modifier.width(16.dp))
-
-                    Column(
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text(
-                            app.name,
-                            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis
+                        .crossfade(true)
+                        .build(),
+                    contentDescription = app.name,
+                    modifier = Modifier
+                        .size(64.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .padding(vertical = 10.dp),
+                    loading = {
+                        Box(
+                            modifier = Modifier
+                                .size(64.dp)
+                                .clip(RoundedCornerShape(16.dp))
+                                .shimmer()
                         )
-                        Text(
-                            app.packageName,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
+                    },
+                    error = {
+                        Box(
+                            modifier = Modifier
+                                .size(64.dp)
+                                .clip(RoundedCornerShape(16.dp))
+                                .background(MaterialTheme.colorScheme.surfaceVariant),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Android,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.size(32.dp)
+                            )
+                        }
                     }
+                )
 
-                    IconButton(
-                        onClick = onBack,
-                        modifier = Modifier.size(48.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = stringResource(R.string.back),
-                            tint = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
+                Spacer(modifier = Modifier.width(16.dp))
+
+                Column(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(
+                        app.name,
+                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
                 }
 
-                // Stats Card
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceContainer
-                    ),
-                    shape = MaterialTheme.shapes.large,
-                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                IconButton(
+                    onClick = onBack,
+                    modifier = Modifier.size(48.dp)
                 ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = stringResource(R.string.back),
+                        tint = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            }
+
+            // Stats Card
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer
+                ),
+                shape = MaterialTheme.shapes.large,
+                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    // Usage Stats Row
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        // Usage Stats Row
-                        Row(
+                        StatItem(
+                            icon = Icons.Filled.Timer,
+                            value = formatDuration(app.usageTime),
+                            label = stringResource(R.string.total_usage),
+                            modifier = Modifier.weight(1f)
+                        )
+
+                        StatItem(
+                            icon = Icons.Filled.LockOpen,
+                            value = "${app.sessions.size}",
+                            label = stringResource(R.string.sessions),
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+
+                    // Average Usage (if available)
+                    app.averageUsage?.let { average ->
+                        StatItem(
+                            icon = Icons.Filled.AlignVerticalBottom,
+                            value = formatDuration(average),
+                            label = stringResource(R.string.average_usage),
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+
+                    // Tracking Toggle
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            stringResource(R.string.track_usage),
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.weight(1f)
+                        )
+
+                        Switch(
+                            checked = countState,
+                            onCheckedChange = {
+                                countState = it
+                                appsViewModel.updateTrackingAppState(app.packageName, it)
+                            },
+                            modifier = Modifier.height(48.dp),
+                            thumbContent = if (countState) {
+                                {
+                                    Icon(
+                                        imageVector = Icons.Filled.TrackChanges,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(SwitchDefaults.IconSize),
+                                        tint = MaterialTheme.colorScheme.onPrimary
+                                    )
+                                }
+                            } else {
+                                null
+                            },
+                            colors = SwitchDefaults.colors(
+                                checkedThumbColor = MaterialTheme.colorScheme.primary,
+                                checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
+                                uncheckedThumbColor = MaterialTheme.colorScheme.outline,
+                                uncheckedTrackColor = MaterialTheme.colorScheme.surfaceVariant
+                            )
+                        )
+                    }
+
+                    // Daily Limit Section
+                    if (app.packageName != context.packageName) {
+                        AnimatedContent(
+                            targetState = li,
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            StatItem(
-                                icon = Icons.Filled.Timer,
-                                value = formatDuration(app.usageTime),
-                                label = stringResource(R.string.total_usage),
-                                modifier = Modifier.weight(1f)
-                            )
-
-                            StatItem(
-                                icon = Icons.Filled.LockOpen,
-                                value = "${app.sessions.size}",
-                                label = stringResource(R.string.sessions),
-                                modifier = Modifier.weight(1f)
-                            )
-                        }
-
-                        // Average Usage (if available)
-                        app.averageUsage?.let { average ->
-                            StatItem(
-                                icon = Icons.Filled.AlignVerticalBottom,
-                                value = formatDuration(average),
-                                label = stringResource(R.string.average_usage),
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                        }
-
-                        // Tracking Toggle
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                stringResource(R.string.track_usage),
-                                style = MaterialTheme.typography.bodyLarge,
-                                modifier = Modifier.weight(1f)
-                            )
-
-                            Switch(
-                                checked = countState,
-                                onCheckedChange = {
-                                    countState = it
-                                    appsViewModel.updateTrackingAppState(app.packageName, it)
-                                },
-                                modifier = Modifier.height(48.dp),
-                                thumbContent = if (countState) {
-                                    {
-                                        Icon(
-                                            imageVector = Icons.Filled.TrackChanges,
-                                            contentDescription = null,
-                                            modifier = Modifier.size(SwitchDefaults.IconSize),
-                                            tint = MaterialTheme.colorScheme.onPrimary
-                                        )
-                                    }
-                                } else {
-                                    null
-                                },
-                                colors = SwitchDefaults.colors(
-                                    checkedThumbColor = MaterialTheme.colorScheme.primary,
-                                    checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
-                                    uncheckedThumbColor = MaterialTheme.colorScheme.outline,
-                                    uncheckedTrackColor = MaterialTheme.colorScheme.surfaceVariant
-                                )
-                            )
-                        }
-
-                        // Daily Limit Section
-                        if (app.packageName != context.packageName) {
-                            AnimatedContent(
-                                targetState = li,
-                                modifier = Modifier.fillMaxWidth(),
-                                label = "DailyLimitAnimation"
-                            ) { limit ->
-                                if (limit == null) {
-                                    FilledTonalButton(
-                                        onClick = { showTimePicker = true },
-                                        modifier = Modifier.fillMaxWidth(),
-                                        shape = MaterialTheme.shapes.medium,
-                                        colors = ButtonDefaults.filledTonalButtonColors(
-                                            containerColor = MaterialTheme.colorScheme.secondaryContainer
-                                        )
+                            label = "DailyLimitAnimation"
+                        ) { limit ->
+                            if (limit == null) {
+                                FilledTonalButton(
+                                    onClick = { showTimePicker = true },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = MaterialTheme.shapes.medium,
+                                    colors = ButtonDefaults.filledTonalButtonColors(
+                                        containerColor = MaterialTheme.colorScheme.secondaryContainer
+                                    )
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Outlined.AlarmAdd,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(stringResource(R.string.set_daily_limit))
+                                }
+                            } else {
+                                ElevatedCard(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    colors = CardDefaults.elevatedCardColors(
+                                        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+                                    )
+                                ) {
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(12.dp),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        Icon(
-                                            imageVector = Icons.Outlined.AlarmAdd,
-                                            contentDescription = null,
-                                            modifier = Modifier.size(18.dp)
-                                        )
-                                        Spacer(modifier = Modifier.width(8.dp))
-                                        Text(stringResource(R.string.set_daily_limit))
-                                    }
-                                } else {
-                                    ElevatedCard(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        colors = CardDefaults.elevatedCardColors(
-                                            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
-                                        )
-                                    ) {
-                                        Row(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .padding(12.dp),
-                                            horizontalArrangement = Arrangement.SpaceBetween,
-                                            verticalAlignment = Alignment.CenterVertically
+                                        Column {
+                                            Text(
+                                                stringResource(R.string.daily_limit),
+                                                style = MaterialTheme.typography.labelMedium,
+                                                color = MaterialTheme.colorScheme.onSurface.copy(
+                                                    alpha = 0.6f
+                                                )
+                                            )
+                                            Text(
+                                                formatDuration(limit.dailyLimit),
+                                                style = MaterialTheme.typography.titleMedium.copy(
+                                                    fontWeight = FontWeight.Bold
+                                                ),
+                                                color = MaterialTheme.colorScheme.primary
+                                            )
+                                        }
+
+                                        TextButton(
+                                            onClick = {
+                                                li = null
+                                                appsViewModel.removeLimit(app.packageName)
+                                            },
+                                            colors = ButtonDefaults.textButtonColors(
+                                                contentColor = MaterialTheme.colorScheme.error
+                                            )
                                         ) {
-                                            Column {
-                                                Text(
-                                                    stringResource(R.string.daily_limit),
-                                                    style = MaterialTheme.typography.labelMedium,
-                                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                                                )
-                                                Text(
-                                                    formatDuration(limit.dailyLimit),
-                                                    style = MaterialTheme.typography.titleMedium.copy(
-                                                        fontWeight = FontWeight.Bold
-                                                    ),
-                                                    color = MaterialTheme.colorScheme.primary
-                                                )
-                                            }
-
-                                            TextButton(
-                                                onClick = {
-                                                    li = null
-                                                    appsViewModel.removeLimit(app.packageName)
-                                                },
-                                                colors = ButtonDefaults.textButtonColors(
-                                                    contentColor = MaterialTheme.colorScheme.error
-                                                )
-                                            ) {
-                                                Text(stringResource(R.string.remove))
-                                            }
+                                            Text(stringResource(R.string.remove))
                                         }
                                     }
                                 }
@@ -380,108 +374,107 @@ fun AppDetailScreen(
                         }
                     }
                 }
-                if (showTimePicker) {
-                    TimePickerDialogButton(
-                        onDismiss = { showTimePicker = false },
-                        onTimeSelected = {
-                            showTimePicker = false
-                            appsViewModel.addLimit(app.packageName, it)
-                        }
-                    )
-                }
             }
-
-            item {
-                // Section Header with improved styling
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 16.dp, horizontal = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        text = stringResource(R.string.usage_sessions).uppercase(),
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.weight(1f),
-                        letterSpacing = 1.sp
-                    )
-
-                    // Optional: Add filter/sort controls here if needed
-                }
-
-                Divider(
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    thickness = 1.dp,
-                    color = MaterialTheme.colorScheme.outlineVariant
+            if (showTimePicker) {
+                TimePickerDialogButton(
+                    onDismiss = { showTimePicker = false },
+                    onTimeSelected = {
+                        showTimePicker = false
+                        appsViewModel.addLimit(app.packageName, it)
+                    }
                 )
             }
+        }
 
-            if (app.sessions.isEmpty()) {
-                // Enhanced empty state
-                item {
+        item {
+            // Section Header with improved styling
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp, horizontal = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = stringResource(R.string.usage_sessions).uppercase(),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.weight(1f),
+                    letterSpacing = 1.sp
+                )
+
+                // Optional: Add filter/sort controls here if needed
+            }
+
+            Divider(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                thickness = 1.dp,
+                color = MaterialTheme.colorScheme.outlineVariant
+            )
+        }
+
+        if (app.sessions.isEmpty()) {
+            // Enhanced empty state
+            item {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 32.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.MonitorHeart,
+                        contentDescription = null,
+                        modifier = Modifier.size(64.dp),
+                        tint = MaterialTheme.colorScheme.outline
+                    )
                     Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 32.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Icon(
-                            imageVector = Icons.Outlined.MonitorHeart,
-                            contentDescription = null,
-                            modifier = Modifier.size(64.dp),
-                            tint = MaterialTheme.colorScheme.outline
+                        Text(
+                            text = stringResource(R.string.no_sessions_detected),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onSurface
                         )
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            Text(
-                                text = stringResource(R.string.no_sessions_detected),
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Medium,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                            Text(
-                                text = stringResource(R.string.we_will_start_tracking),
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier.padding(horizontal = 32.dp)
-                            )
-                        }
+                        Text(
+                            text = stringResource(R.string.we_will_start_tracking),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(horizontal = 32.dp)
+                        )
                     }
                 }
-            } else {
-                items(
-                    items = app.sessions.filterNotNull().reversed(),
-                    key = { it.start }
-                ) { session ->
-                    val index = app.sessions.indexOf(session) + 1
-                    // Add subtle animation for each item
-                    AnimatedVisibility(
-                        visible = true,
-                        enter = fadeIn() + expandVertically(),
-                        exit = fadeOut() + shrinkVertically()
-                    ) {
-                        SessionCard(
-                            startTime = session.start.formatTime(),
-                            endTime = session.end.formatTime(),
-                            duration = formatDuration(session.duration),
-                            modifier = Modifier.animateEnterExit(
-                                enter = fadeIn() + expandVertically(),
-                                exit = fadeOut() + shrinkVertically()
-                            )
+            }
+        } else {
+            items(
+                items = app.sessions.filterNotNull().reversed(),
+                key = { it.start }
+            ) { session ->
+                val index = app.sessions.indexOf(session) + 1
+                // Add subtle animation for each item
+                AnimatedVisibility(
+                    visible = true,
+                    enter = fadeIn() + expandVertically(),
+                    exit = fadeOut() + shrinkVertically()
+                ) {
+                    SessionCard(
+                        startTime = session.start.formatTime(),
+                        endTime = session.end.formatTime(),
+                        duration = formatDuration(session.duration),
+                        modifier = Modifier.animateEnterExit(
+                            enter = fadeIn() + expandVertically(),
+                            exit = fadeOut() + shrinkVertically()
                         )
-                    }
+                    )
                 }
             }
         }
     }
 }
-
 
 @Composable
 fun SessionCard(

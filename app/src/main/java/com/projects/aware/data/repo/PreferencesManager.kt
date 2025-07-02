@@ -1,11 +1,14 @@
 package com.projects.aware.data.repo
 
 import android.content.Context
+import android.content.Intent
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.content.edit
 import com.projects.aware.main.settings.AppTheme
+import com.projects.aware.ui.components.segmentedButtons.SegmentedButtonProp
+import com.projects.aware.ui.components.segmentedButtons.SegmentedButtonsOptions
 import com.projects.aware.ui.screens.overlay.OverlaySettings
 import java.util.Locale
 
@@ -23,6 +26,18 @@ class PreferencesManager(
         private const val THEME_KEY = "app_theme"
     }
 
+    fun savePassword(password: String?) {
+        settingsPrefs.edit { putString("password", password) }
+    }
+
+    fun getRecoveryPassword(): String {
+        return "2009"
+    }
+
+    fun getPassword(): String? {
+        return settingsPrefs.getString("password", null)
+    }
+
     fun saveSortType(sortType: SortType) {
         sortPrefs.edit { putString(SORT_KEY, sortType.name) }
     }
@@ -32,12 +47,23 @@ class PreferencesManager(
         return sortType?.let { SortType.valueOf(it) } ?: SortType.Name
     }
 
+    fun setDisabilityState(isDisabled: Boolean) {
+        settingsPrefs.edit {
+            putBoolean("app_disability", isDisabled)
+        }
+    }
+
+    fun getDisabilityState(): Boolean {
+        return settingsPrefs.getBoolean("app_disability", false)
+    }
+
     fun getOverlaySettings(): OverlaySettings {
         return OverlaySettings(
             background = Color(overlayPrefs.getInt("bg_color", Color.Black.toArgb())),
             textColor = Color(overlayPrefs.getInt("text_color", Color.White.toArgb())),
             showAppName = overlayPrefs.getBoolean("show_app_name", true),
             showAppUsage = overlayPrefs.getBoolean("show_app_usage", true),
+            size = overlayPrefs.getFloat("bubble_size", 1f),
             cornerRadius = overlayPrefs.getInt("corner_radius", 30),
             showAppIcon = overlayPrefs.getBoolean("show_app_icon", true),
             isBubbleVisible = overlayPrefs.getBoolean("is_bubble_visible", false)
@@ -49,6 +75,7 @@ class PreferencesManager(
             putInt("text_color", overlaySettings.textColor.toArgb())
             putInt("corner_radius", overlaySettings.cornerRadius)
             putBoolean("show_app_icon", overlaySettings.showAppIcon)
+            putFloat("bubble_size", overlaySettings.size)
             putBoolean("show_app_name", overlaySettings.showAppName)
             putBoolean("show_app_usage", overlaySettings.showAppUsage)
             putBoolean("is_bubble_visible", overlaySettings.isBubbleVisible)
@@ -58,6 +85,9 @@ class PreferencesManager(
 
     fun saveLanguage(language: String) {
         settingsPrefs.edit { putString(LANGUAGE_KEY, language) }
+
+        val intent = Intent("com.aware.settings.language")
+        context.sendBroadcast(intent)
     }
     fun getLanguage(): String {
         val language = settingsPrefs.getString(LANGUAGE_KEY, "en")

@@ -1,8 +1,5 @@
 package com.projects.aware.service.foreground
 
-import android.app.Notification
-import android.app.NotificationChannel
-import android.app.NotificationManager
 import android.app.Service
 import android.app.usage.UsageEvents
 import android.app.usage.UsageStatsManager
@@ -14,11 +11,8 @@ import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.IBinder
-import android.os.VibrationEffect
-import android.os.Vibrator
 import android.provider.Settings
 import android.util.Log
-import android.view.GestureDetector
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -27,13 +21,13 @@ import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.compose.ui.graphics.toArgb
-import androidx.core.app.NotificationCompat
 import com.projects.aware.R
 import com.projects.aware.data.db.ObjectBoxManager
 import com.projects.aware.data.repo.App
 import com.projects.aware.data.repo.AppsRepo
 import com.projects.aware.data.repo.formatDuration
 import com.projects.aware.main.AwareApp
+import com.projects.aware.main.LimitDialogActivity
 import com.projects.aware.ui.screens.overlay.OverlaySettings
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

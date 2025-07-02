@@ -8,6 +8,7 @@ import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -17,29 +18,33 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Badge
-import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.IconButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Android
-import androidx.compose.material.icons.filled.ArrowUpward
+import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DataUsage
+import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.TrackChanges
 import androidx.compose.material.icons.outlined.AccessTime
 import androidx.compose.material.icons.outlined.Apps
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularWavyProgressIndicator
@@ -47,12 +52,14 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -80,9 +87,7 @@ import androidx.palette.graphics.Palette
 import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
 import com.projects.aware.R
-import com.projects.aware.data.model.LimitAppUsage
 import com.projects.aware.data.repo.App
-import com.projects.aware.data.repo.SortType
 import com.projects.aware.data.repo.formatDuration
 import com.projects.aware.main.hasUsageStatsPermission
 import com.projects.aware.ui.AppsViewModel
@@ -99,8 +104,6 @@ fun AppsListScreen(
 ) {
     // states
     val context = LocalContext.current
-    val apps by appsViewModel.apps.collectAsStateWithLifecycle()
-    val limits by appsViewModel.limits.collectAsStateWithLifecycle()
     val loading by appsViewModel.loading.collectAsStateWithLifecycle()
     val sortType by appsViewModel.sortTypeState.collectAsStateWithLifecycle()
     val query by appsViewModel.queryState.collectAsStateWithLifecycle()
@@ -127,6 +130,11 @@ fun AppsListScreen(
         Scaffold(
             topBar = {
                 TopAppBar(
+                    windowInsets = WindowInsets(0,0,0,0),
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = Color.Transparent,
+                        scrolledContainerColor = Color.Transparent
+                    ),
                     title = {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
@@ -153,11 +161,7 @@ fun AppsListScreen(
                 AppList(
                     appsViewModel = appsViewModel,
                     modifier = Modifier.padding(top = innerPadding.calculateTopPadding()),
-                    apps = apps.uiApps,
-                    onAppClick = onAppClick,
-                    limits = limits.limits,
-                    loading = loading,
-                    totalUsageTime = apps.totalUsageTime
+                    onAppClick = onAppClick
                 )
             } else {
                 Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -235,14 +239,13 @@ fun extractDominantColor(context: Context, packageName: String): Color {
 fun AppList(
     modifier: Modifier = Modifier,
     appsViewModel: AppsViewModel,
-    onAppClick: (App) -> Unit,
-    loading: Boolean,
-    totalUsageTime: Long = 0L,
-    limits: List<LimitAppUsage?>,
-    apps: List<App?>,
+    onAppClick: (App) -> Unit
 ) {
     val query by appsViewModel.queryState.collectAsStateWithLifecycle()
     val currentHomeSegment by appsViewModel.homeSegmentedButton.collectAsStateWithLifecycle()
+    val apps by appsViewModel.apps.collectAsStateWithLifecycle()
+    val loading by appsViewModel.loading.collectAsStateWithLifecycle()
+
     val listState = rememberLazyListState()
     rememberCoroutineScope()
 
@@ -268,7 +271,7 @@ fun AppList(
                             color = Color.Gray
                         )
                         Text(
-                            formatDuration(totalUsageTime),
+                            formatDuration(apps.totalUsageTime),
                             style = MaterialTheme.typography.displayMedium
                         )
                     }
@@ -279,6 +282,34 @@ fun AppList(
                     ) {
                         appsViewModel.switchSegmentedHomeApps(it)
                     }
+                    Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                        OutlinedButton(
+                            onClick = { appsViewModel.updateAllAppsState(!apps.allAppsTrackable) },
+                            modifier = Modifier
+                                .defaultMinSize(minHeight = 36.dp)
+                                .padding(top = 8.dp),
+                            shape = RoundedCornerShape(50), // pill shape
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                containerColor = Color.Transparent,
+                                contentColor = MaterialTheme.colorScheme.primary
+                            ),
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
+                        ) {
+                            Icon(
+                                imageVector = if (apps.allAppsTrackable) Icons.Default.Cancel else Icons.Default.TrackChanges,
+                                contentDescription = "Untrack all",
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = if (apps.allAppsTrackable) stringResource(R.string.untrack_all_apps) else stringResource(
+                                    R.string.track_all_apps
+                                ),
+                                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium)
+                            )
+                        }
+                    }
+
                 }
                 when {
                     loading -> {
@@ -287,7 +318,7 @@ fun AppList(
                         }
                     }
 
-                    apps.isEmpty() && !loading -> {
+                    apps.uiApps.isEmpty() && !loading -> {
                         item {
                             EmptyState(
                                 modifier = Modifier.fillParentMaxSize(),
@@ -298,7 +329,7 @@ fun AppList(
 
                     else -> {
                         items(
-                            items = apps.filterNotNull(),
+                            items = apps.uiApps,
                             key = { it.packageName }
                         ) { app ->
 
@@ -418,7 +449,6 @@ private fun EmptyState(
 }
 
 
-
 @Composable
 fun AppItem(
     modifier: Modifier = Modifier,
@@ -456,7 +486,6 @@ fun AppItem(
                 viewModel = appsViewModel,
                 modifier = Modifier.size(48.dp)
             )
-
             // App Info Column
             Column(
                 modifier = Modifier.weight(1f),
@@ -470,18 +499,6 @@ fun AppItem(
                     overflow = TextOverflow.Ellipsis
                 )
 
-                // Optional: Package name (commented out by default)
-                /*
-                Text(
-                    text = app.packageName,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                */
-
-                // Usage time with icon
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
@@ -505,15 +522,6 @@ fun AppItem(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                if (isTrackable) {
-                    Icon(
-                        imageVector = Icons.Filled.TrackChanges,
-                        contentDescription = stringResource(R.string.tracking_enabled),
-                        modifier = Modifier.size(20.dp),
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                }
-
                 if (limits.limits.any { it?.packageName == app.packageName }) {
                     Badge(
                         contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
@@ -525,6 +533,15 @@ fun AppItem(
                         )
                     }
                 }
+                if (isTrackable) {
+                    Icon(
+                        imageVector = Icons.Filled.TrackChanges,
+                        contentDescription = stringResource(R.string.tracking_enabled),
+                        modifier = Modifier.size(20.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+
             }
         }
     }

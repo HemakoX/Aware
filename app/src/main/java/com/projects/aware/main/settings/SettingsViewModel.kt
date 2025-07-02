@@ -1,12 +1,11 @@
 package com.projects.aware.main.settings
 
-import android.R
-import android.util.Log
 import androidx.compose.material3.ColorScheme
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.projects.aware.data.repo.Language
 import com.projects.aware.data.repo.PreferencesManager
+import com.projects.aware.ui.screens.settings.PasswordDialogType
 import com.projects.aware.ui.screens.settings.sendEmailFeedback
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,25 +13,107 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import okhttp3.Dispatcher
-import kotlin.math.log
 
 class SettingsViewModel(
     private val preferencesManager: PreferencesManager,
 ) : ViewModel() {
 
-    // Theme state
-    private val _theme = MutableStateFlow<AppTheme?>(getDefaultTheme())
-    val theme = _theme.asStateFlow()
+    private val _awareSettings = MutableStateFlow(
+        Settings(
+            isAppDisabled = preferencesManager.getDisabilityState(),
+            theme = getDefaultTheme(),
+            passwordSettings = PasswordProps(
+                isPasswordSet = isPinSet(),
+                error = null
+            ),
+            language = preferencesManager.getLanguage()
+        )
+    )
+    val awareSettings = _awareSettings.asStateFlow()
 
-    // Language state
-    private val _language = MutableStateFlow(preferencesManager.getLanguage())
-    val language = _language.asStateFlow()
+    fun createPin(password: String, onSuccess: () -> Unit, onError: () -> Unit) {
+        if (password.length == 4) {
+            preferencesManager.savePassword(password)
+            onSuccess()
+        } else {
+            onError()
+        }
+    }
 
+    fun verifyPin(password: String, onSuccess: () -> Unit = {}, onError: () -> Unit = {}): Boolean {
+        val storedPassword = preferencesManager.getPassword() == password && preferencesManager.getPassword() != null
+        return if (storedPassword || password == preferencesManager.getRecoveryPassword()) {
+            _awareSettings.update {
+                it.copy(
+                    passwordSettings = it.passwordSettings.copy(
+                        error = null,
+                        isPasswordSet = true,
+                        isAuth = true
+                    )
+                )
+            }
+            onSuccess()
+            true
+        } else {
+            _awareSettings.update {
+                it.copy(
+                    passwordSettings = it.passwordSettings.copy(
+                        error = "Incorrect password",
+                    )
+                )
+            }
+            onError()
+            false
+        }
+    }
+
+    fun changePin(oldPin: String, newPin: String, onSuccess: () -> Unit, onFailure: () -> Unit) {
+        if (verifyPin(oldPin)) {
+            preferencesManager.savePassword(newPin)
+            _awareSettings.update {
+                it.copy(
+                    passwordSettings = it.passwordSettings.copy(isPasswordSet = true, error = null)
+                )
+            }
+            onSuccess()
+        } else {
+            onFailure()
+        }
+    }
+
+    fun removePin(currentPin: String, onSuccess: () -> Unit, onFailure: () -> Unit) {
+        if (verifyPin(currentPin)) {
+            preferencesManager.savePassword(null)
+            _awareSettings.update {
+                it.copy(
+                    passwordSettings = it.passwordSettings.copy(isPasswordSet = false, error = null)
+                )
+            }
+            onSuccess()
+        } else {
+            onFailure()
+        }
+    }
+
+    fun isPinSet(): Boolean {
+        return preferencesManager.getPassword() != null
+    }
+
+    fun setNewDialogType(type: PasswordDialogType) {
+        _awareSettings.update {
+            it.copy(
+                passwordSettings = it.passwordSettings.copy(dialogType = type)
+            )
+        }
+    }
 
     // Theme props
     fun updateTheme(theme: AppTheme) {
-        _theme.update { theme }
+        _awareSettings.update {
+            it.copy(
+                theme = theme
+            )
+        }
         preferencesManager.setTheme(theme.name)
     }
 
@@ -40,16 +121,26 @@ class SettingsViewModel(
         return theme.toColorScheme()
     }
 
-    fun getLanguage(abb: String): Language {
-        return Language.entries.find { it.value == abb }!!
+
+    fun setDisabilityState(state: Boolean) {
+        preferencesManager.setDisabilityState(state)
+        _awareSettings.update {
+            it.copy(
+                isAppDisabled = state
+            )
+        }
     }
 
-    fun getDefaultTheme(): AppTheme? {
+    private fun getDefaultTheme(): AppTheme? {
         return AppTheme.entries.find { it.name == preferencesManager.getTheme() }
     }
 
     fun updateLanguage(language: Language) {
-        _language.update { language.value }
+        _awareSettings.update {
+            it.copy(
+                language = language.value
+            )
+        }
         preferencesManager.saveLanguage(language.value)
     }
 
@@ -69,3 +160,17 @@ class SettingsViewModel(
             })
     }
 }
+
+data class Settings(
+    val isAppDisabled: Boolean = false,
+    val passwordSettings: PasswordProps,
+    val language: String,
+    val theme: AppTheme? = null,
+)
+
+data class PasswordProps(
+    val isPasswordSet: Boolean,
+    val error: String? = null,
+    val dialogType: PasswordDialogType = PasswordDialogType.NONE,
+    val isAuth: Boolean = false,
+)

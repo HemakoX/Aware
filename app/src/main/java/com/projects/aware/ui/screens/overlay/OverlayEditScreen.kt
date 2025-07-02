@@ -9,6 +9,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.expandHorizontally
@@ -48,6 +49,7 @@ import androidx.compose.material.icons.filled.Title
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -71,7 +73,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -82,11 +87,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.projects.aware.R
 import com.projects.aware.main.isAccessibilityServiceEnabled
-import com.projects.aware.ui.ViewModelsProvider
 import com.projects.aware.ui.components.ColorPickDialog
 import com.projects.aware.ui.screens.onboarding.PermissionCard
 import kotlin.math.roundToInt
@@ -96,141 +100,6 @@ import kotlin.math.roundToInt
 fun OverlaySettingsScreen(
     viewModel: OverlaySettingsViewModel
 ) {
-    val settings by viewModel.overlaySettings.collectAsStateWithLifecycle()
-    val context = LocalContext.current
-    val cornerRadius by animateIntAsState(
-        settings.cornerRadius
-    )
-    Scaffold(
-        bottomBar = {
-            SaveButton(viewModel, context)
-        },
-        topBar = {
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(180.dp),
-                color = settings.background.getAdjustedContrast(),
-                tonalElevation = 3.dp,
-                shape = RoundedCornerShape(bottomStart = 32.dp, bottomEnd = 32.dp)
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    // Title with better contrast handling
-                    Text(
-                        text = stringResource(R.string.bubble_preview),
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = settings.background.getAdjustedContrast()
-                            .getAdjustedContrast(), // New contrast function
-                        fontWeight = FontWeight.Medium
-                    )
-
-                    // Preview bubble with enhanced styling
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(cornerRadius))
-                            .background(
-                                settings.background,
-                                // Subtle shadow for depth
-                                shape = RoundedCornerShape(cornerRadius)
-                            )
-                            .border(
-                                width = 1.dp,
-                                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
-                                shape = RoundedCornerShape(cornerRadius)
-                            )
-                            .padding(10.dp)
-                            .animateContentSize(
-                                animationSpec = spring(
-                                    dampingRatio = Spring.DampingRatioMediumBouncy,
-                                    stiffness = Spring.StiffnessLow
-                                )
-                            ),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(12.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            // App icon with smooth visibility animation
-                            AnimatedVisibility(
-                                visible = settings.showAppIcon,
-                                enter = fadeIn() + expandHorizontally(),
-                                exit = fadeOut() + shrinkHorizontally()
-                            ) {
-                                Image(
-                                    painter = painterResource(R.drawable.play_store_512),
-                                    contentDescription = stringResource(R.string.app_icon),
-                                    modifier = Modifier
-                                        .size(42.dp)
-                                        .clip(CircleShape)
-                                        .border(
-                                            1.dp,
-                                            MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
-                                            CircleShape
-                                        ),
-                                    contentScale = ContentScale.Fit
-                                )
-                            }
-
-                            // App info with better typography
-                            Column(
-                                verticalArrangement = Arrangement.spacedBy(4.dp)
-                            ) {
-                                AnimatedVisibility(
-                                    visible = settings.showAppName,
-                                    enter = fadeIn() + expandVertically(),
-                                    exit = fadeOut() + shrinkVertically()
-                                ) {
-                                    Text(
-                                        text = "Aware",
-                                        style = MaterialTheme.typography.titleLarge,
-                                        color = settings.textColor,
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis
-                                    )
-                                }
-
-                                AnimatedVisibility(
-                                    visible = settings.showAppUsage,
-                                    enter = fadeIn() + expandVertically(),
-                                    exit = fadeOut() + shrinkVertically()
-                                ) {
-                                    Text(
-                                        text = "0m 0s",
-                                        style = MaterialTheme.typography.bodyLarge,
-                                        color = settings.textColor.copy(alpha = 0.8f)
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .padding(
-                    top = paddingValues.calculateTopPadding(),
-                    bottom = paddingValues.calculateBottomPadding()
-                )
-                .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            EnhancedCustomizationSection(viewModel)
-        }
-    }
-}
-
-
-@Composable
-fun EnhancedCustomizationSection(viewModel: OverlaySettingsViewModel) {
     val context = LocalContext.current
     var overlayPermission by remember { mutableStateOf(Settings.canDrawOverlays(context)) }
     var showOverlayPermissionDialog by remember { mutableStateOf(false) }
@@ -247,105 +116,57 @@ fun EnhancedCustomizationSection(viewModel: OverlaySettingsViewModel) {
         }
     }
 
-    LazyColumn(
-        modifier = Modifier.padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        // Header Section
-        item {
-            Text(
-                text = stringResource(R.string.customize_panel),
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(vertical = 8.dp)
-            )
-        }
-
-        // Settings Cards
-        item {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                // Color Settings
-                SettingsCard(
-                    modifier = Modifier.weight(1f),
-                    title = stringResource(R.string.colors)
-                ) {
-                    ColorSettingItem(
-                        label = stringResource(R.string.bg_color),
-                        currentColor = settings.background,
-                        onColorSelected = { viewModel.updateBackgroundColor(it) }
-                    )
-                    ColorSettingItem(
-                        label = stringResource(R.string.text_color),
-                        currentColor = settings.textColor,
-                        onColorSelected = { viewModel.updateTextColor(it) }
-                    )
-                }
-
-                // Overlay Control
-                SettingsCard(
-                    modifier = Modifier.weight(1f),
-                    title = stringResource(R.string.bubble_control)
-                ) {
-                    OverlayToggleButton(
-                        isActive = settings.isBubbleVisible,
-                        onToggle = { active ->
-                            if (overlayPermission && accessibilityPermission) {
-                                viewModel.updateBubbleVisibility(active)
-                                val intent = Intent("com.aware.actions.OverlayVisibility").apply {
-                                    putExtra("is_visible", active)
-                                }
-                                context.sendBroadcast(intent)
-                            } else {
-                                showOverlayPermissionDialog = true
-                            }
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-            }
-        }
-
-        // Corner Radius Slider
-        item {
-            SettingsCard(title = stringResource(R.string.appearance)) {
-                SliderSetting(
-                    label = stringResource(R.string.corner_radius),
-                    value = settings.cornerRadius.toFloat(),
-                    valueRange = 0f..70f,
-                    steps = 10,
-                    onValueChange = { viewModel.updateCornerRadius(it) }
+    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Scaffold(
+            modifier = Modifier.fillMaxSize(),
+            bottomBar = {
+                SaveButton(viewModel, context)
+            },
+            topBar = {
+                TopBarBubblePreview(
+                    settings = settings
                 )
             }
+        ) { paddingValues ->
+            Column(
+                modifier = Modifier
+                    .padding(
+                        top = paddingValues.calculateTopPadding(),
+                        bottom = paddingValues.calculateBottomPadding()
+                    )
+                    .fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                EnhancedCustomizationSection(viewModel)
+            }
         }
 
-        // Display Options
-        item {
-            SettingsCard(title = stringResource(R.string.display_options)) {
-                SwitchSetting(
-                    label = stringResource(R.string.show_icon),
-                    checked = settings.showAppIcon,
-                    icon = Icons.Default.Image
-                ) { viewModel.updateShowAppIcon(it) }
+        AnimatedVisibility(
+            !settings.isBubbleVisible || !accessibilityPermission || !overlayPermission,
+            enter = fadeIn(),
+            exit = fadeOut()
 
-                SwitchSetting(
-                    label = stringResource(R.string.show_name),
-                    checked = settings.showAppName,
-                    icon = Icons.Default.Title
-                ) { viewModel.updateShowAppName(it) }
-
-                SwitchSetting(
-                    label = stringResource(R.string.show_usage),
-                    checked = settings.showAppUsage,
-                    icon = Icons.Default.Timer
-                ) { viewModel.updateShowAppUsage(it) }
+        ) {
+            val problem = if (accessibilityPermission && overlayPermission) {
+                stringResource(R.string.bubble_is_disabled)
+            } else {
+                stringResource(R.string.permssions_are_not_granted)
+            }
+            BubbleDisability(
+                message = problem,
+            ) {
+                if (overlayPermission && accessibilityPermission) {
+                    viewModel.updateBubbleVisibility(true)
+                    val intent = Intent("com.aware.actions.OverlayVisibility").apply {
+                        putExtra("is_visible", true)
+                    }
+                    context.sendBroadcast(intent)
+                } else {
+                    showOverlayPermissionDialog = true
+                }
             }
         }
     }
-
     if (showOverlayPermissionDialog) {
         AlertDialog(
             onDismissRequest = { showOverlayPermissionDialog = false },
@@ -401,6 +222,158 @@ fun EnhancedCustomizationSection(viewModel: OverlaySettingsViewModel) {
                 }
             }
         )
+    }
+}
+
+@Composable
+fun BubbleDisability(
+    modifier: Modifier = Modifier,
+    message: String,
+    onActivate: () -> Unit,
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.8f)) // semi-transparent background
+            .clickable(
+                onClick = {},
+                indication = null,
+                interactionSource = interactionSource
+            ) // blocks clicks to background
+            .zIndex(1f), // puts it in front of everything
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(24.dp)
+                .clip(RoundedCornerShape(24.dp))
+                .background(MaterialTheme.colorScheme.surface)
+                .padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = message,
+                style = MaterialTheme.typography.headlineLarge,
+                fontWeight = FontWeight.SemiBold
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(onClick = onActivate) {
+                Text(stringResource(R.string.activate))
+            }
+        }
+    }
+
+}
+
+@Composable
+fun EnhancedCustomizationSection(viewModel: OverlaySettingsViewModel) {
+    val settings by viewModel.overlaySettings.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+
+
+    LazyColumn(
+        modifier = Modifier.padding(horizontal = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        // Header Section
+        item {
+            Text(
+                text = stringResource(R.string.customize_panel),
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(vertical = 8.dp)
+            )
+        }
+
+        // Settings Cards
+        item {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                // Color Settings
+                SettingsCard(
+                    modifier = Modifier.weight(1f),
+                    title = stringResource(R.string.colors)
+                ) {
+                    ColorSettingItem(
+                        label = stringResource(R.string.bg_color),
+                        currentColor = settings.background,
+                        onColorSelected = { viewModel.updateBackgroundColor(it) }
+                    )
+                    ColorSettingItem(
+                        label = stringResource(R.string.text_color),
+                        currentColor = settings.textColor,
+                        onColorSelected = { viewModel.updateTextColor(it) }
+                    )
+                }
+
+                // Overlay Control
+                SettingsCard(
+                    modifier = Modifier.weight(1f),
+                    title = stringResource(R.string.bubble_control)
+                ) {
+                    OverlayToggleButton(
+                        isActive = settings.isBubbleVisible,
+                        onToggle = { active ->
+                            viewModel.updateBubbleVisibility(active)
+                            val intent = Intent("com.aware.actions.OverlayVisibility").apply {
+                                putExtra("is_visible", active)
+                            }
+                            context.sendBroadcast(intent)
+
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+        }
+
+        // Corner Radius Slider
+        item {
+            SettingsCard(title = stringResource(R.string.appearance)) {
+                SliderSetting(
+                    label = stringResource(R.string.corner_radius),
+                    value = settings.cornerRadius.toFloat(),
+                    valueRange = 0f..70f,
+                    steps = 10,
+                    onValueChange = { viewModel.updateCornerRadius(it) }
+                )
+                SliderSetting(
+                    value = settings.size,
+                    showValue = false,
+                    valueRange = 0.4F..1.1F,
+                    onValueChange = { viewModel.updateBubbleSize(it) },
+                    steps = 10,
+                    label = stringResource(R.string.bubble_size)
+                )
+            }
+        }
+
+        // Display Options
+        item {
+            SettingsCard(title = stringResource(R.string.display_options)) {
+                SwitchSetting(
+                    label = stringResource(R.string.show_icon),
+                    checked = settings.showAppIcon,
+                    icon = Icons.Default.Image
+                ) { viewModel.updateShowAppIcon(it) }
+
+                SwitchSetting(
+                    label = stringResource(R.string.show_name),
+                    checked = settings.showAppName,
+                    icon = Icons.Default.Title
+                ) { viewModel.updateShowAppName(it) }
+
+                SwitchSetting(
+                    label = stringResource(R.string.show_usage),
+                    checked = settings.showAppUsage,
+                    icon = Icons.Default.Timer
+                ) { viewModel.updateShowAppUsage(it) }
+            }
+        }
     }
 }
 
@@ -547,7 +520,11 @@ private fun SwitchSetting(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.clip(CircleShape)
+                .clickable { onCheckedChange(!checked) }
+        ) {
             icon?.let {
                 Icon(
                     imageVector = it,
@@ -582,6 +559,7 @@ private fun SliderSetting(
     value: Float,
     valueRange: ClosedFloatingPointRange<Float>,
     steps: Int = 0,
+    showValue: Boolean = true,
     onValueChange: (Float) -> Unit
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
@@ -593,11 +571,13 @@ private fun SliderSetting(
                 text = label,
                 style = MaterialTheme.typography.bodyLarge
             )
-            Text(
-                text = value.roundToInt().toString(),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.primary
-            )
+            if (showValue) {
+                Text(
+                    text = value.roundToInt().toString(),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
         }
         Slider(
             value = value,
@@ -656,6 +636,133 @@ fun ColorPickerDialog(
         }
     )
 
+}
+
+
+@Composable
+fun TopBarBubblePreview(modifier: Modifier = Modifier, settings: OverlaySettings) {
+    val bubbleScale by animateFloatAsState(settings.size)
+    val cornerRadius by animateIntAsState(settings.cornerRadius)
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(180.dp)
+            .clipToBounds(),
+        color = settings.background.getAdjustedContrast(),
+        tonalElevation = 3.dp,
+        shape = RoundedCornerShape(bottomStart = 32.dp, bottomEnd = 32.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .clipToBounds(),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .animateContentSize()
+            ) {
+                Text(
+                    text = stringResource(R.string.bubble_preview),
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = settings.background.getAdjustedContrast().getAdjustedContrast(),
+                    fontWeight = FontWeight.Medium
+                )
+
+                Card(
+                    colors = CardDefaults.cardColors(
+                        containerColor = settings.background
+                    ),
+                    shape = RoundedCornerShape(cornerRadius),
+                    modifier = Modifier
+                        .graphicsLayer {
+                            scaleX = bubbleScale.coerceIn(0.5f, 2.5f)
+                            scaleY = bubbleScale.coerceIn(0.5f, 2.5f)
+                            transformOrigin = TransformOrigin.Center
+                        }
+                        .clip(RoundedCornerShape(cornerRadius))
+                        .animateContentSize(
+                            animationSpec = spring(
+                                dampingRatio = Spring.DampingRatioMediumBouncy,
+                                stiffness = Spring.StiffnessLow
+                            )
+                        ),
+                ) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(12.dp)
+                    ) {
+                        AnimatedVisibility(
+                            visible = settings.showAppIcon,
+                            enter = fadeIn() + expandHorizontally(),
+                            exit = fadeOut() + shrinkHorizontally()
+                        ) {
+                            Image(
+                                painter = painterResource(R.drawable.play_store_512),
+                                contentDescription = stringResource(R.string.app_icon),
+                                modifier = Modifier
+                                    .size(42.dp)
+                                    .clip(CircleShape)
+                                    .border(
+                                        1.dp,
+                                        MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
+                                        CircleShape
+                                    ),
+                                contentScale = ContentScale.Fit
+                            )
+                        }
+
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            AnimatedVisibility(
+                                visible = settings.showAppName,
+                                enter = fadeIn() + expandVertically(),
+                                exit = fadeOut() + shrinkVertically()
+                            ) {
+                                Text(
+                                    text = "Aware",
+                                    style = MaterialTheme.typography.titleLarge,
+                                    color = settings.textColor,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
+
+                            AnimatedVisibility(
+                                visible = settings.showAppUsage,
+                                enter = fadeIn() + expandVertically(),
+                                exit = fadeOut() + shrinkVertically()
+                            ) {
+                                Text(
+                                    text = "0m 0s",
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = settings.textColor.copy(alpha = 0.8f)
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+    }
+}
+
+@Preview
+@Composable
+private fun BubblePrev() {
+    MaterialTheme {
+        TopBarBubblePreview(
+            settings = OverlaySettings(
+                size = 1F
+            )
+        )
+    }
 }
 
 fun Color.getAdjustedContrast(factor: Float = 0.8f): Color {

@@ -17,8 +17,8 @@ android {
         applicationId = "com.projects.aware"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 4
+        versionName = "1.1.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -36,7 +36,7 @@ android {
             isMinifyEnabled = false
             applicationIdSuffix = ".debug"
             versionNameSuffix = "-debug"
-            resValue("string", "app_name", "aware-debug")
+            resValue("string", "app_name", "Aware test")
             manifestPlaceholders["icon"] = "@drawable/debug_app_icon.png"
         }
     }
@@ -96,6 +96,7 @@ dependencies {
     // room
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.room.runtime)
+    implementation(libs.material)
     ksp(libs.androidx.room.compiler)
 
     testImplementation(libs.junit)

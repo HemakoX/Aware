@@ -53,7 +53,7 @@ fun CustomButtonGroup(
                 CustomSegmentedButton(
                     modifier = Modifier.fillMaxWidth(weight),
                     label = option.label,
-                    icon = if (selectedOption == option) option.selectedIcon else option.unselectedIcon,
+                    icon = option.selectedIcon,
                     onClick = { onOptionSelected(option) },
                     selected = selectedOption == option,
                     index = options.indexOf(option),
@@ -127,5 +127,5 @@ data class SegmentedButtonProp(
     @StringRes val label: Int,
     val storeName: String,
     val selectedIcon: ImageVector,
-    val unselectedIcon: ImageVector,
+    val value: Any? = null
 )

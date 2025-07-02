@@ -85,10 +85,9 @@ import kotlinx.coroutines.launch
 @Composable
 fun OnboardingScreen(settingsViewModel: SettingsViewModel,overlaySettingsViewModel: OverlaySettingsViewModel, onFinish: () -> Unit) {
     val context = LocalContext.current
-    val theme by settingsViewModel.theme.collectAsStateWithLifecycle()
-    var currentTheme by remember { mutableStateOf(theme) }
-    val language by settingsViewModel.language.collectAsStateWithLifecycle()
-    var currentLanguage by remember { mutableStateOf(settingsViewModel.getLanguage(language)) }
+    val awareSettings by settingsViewModel.awareSettings.collectAsStateWithLifecycle()
+    val currentTheme by remember { mutableStateOf(awareSettings.theme) }
+    val currentLanguage by remember { mutableStateOf(awareSettings.language) }
     val settings by overlaySettingsViewModel.overlaySettings.collectAsStateWithLifecycle()
     val pages = listOf(
         OnboardingPage(
@@ -284,7 +283,7 @@ fun OnboardingScreen(settingsViewModel: SettingsViewModel,overlaySettingsViewMod
                                 settingsViewModel.updateLanguage(it)
                                 restartApp(context)
                             },
-                            currentLanguage = currentLanguage.value
+                            currentLanguage = currentLanguage
                         )
                     }
                 }
